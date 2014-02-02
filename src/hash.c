@@ -6,8 +6,7 @@
 #include<stdio.h>
 
 /*
- * A MurmurHash implementation
- * Direct copy of the wikipedia pseudocode found here
+ * A MurmurHash3 implementation
  * http://en.wikipedia.org/wiki/MurmurHash#Algorithm
  * 
 
@@ -40,11 +39,11 @@ uint32_t hash_string_32(char* string,int len)
         k = a1 + (a2 << 8) + (a3 << 16) + (a4 << 24);
         
         k = k*c1;
-        k = (k << r1) | (k >> (32 - r1));
+        k = (k << r1);
         k = k*c2;
 
         hash = hash ^ k;
-        hash = (hash << r2 ) | (hash >> (32 - r2));
+        hash = (hash << r2 );
         hash = hash*m + n;
     }
     
@@ -54,17 +53,19 @@ uint32_t hash_string_32(char* string,int len)
             break;
         case 1 :
             remainingBytes = string[4*limit];
-            hash = hash ^ remainingBytes;
             break;
         case 2 :
             remainingBytes = string[4*limit ] + (string[4*limit + 1] << 8 );
-            hash = hash ^ remainingBytes;
             break;
         case 3 :
             remainingBytes = string[4*limit ] + (string[4*limit + 1] << 8 ) + (string[4*limit + 2] << 16 );
-            hash = hash ^ remainingBytes;
             break;
     }
+    
+    remainingBytes *= c1;
+    remainingBytes = (remainingBytes << r1);
+    remainingBytes*= c2;
+    hash = hash ^ remainingBytes;
     
     hash = hash ^ len;
 

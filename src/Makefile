@@ -1,10 +1,10 @@
 CC=gcc
 CFLAGS=-c -Wall
-SOURCES=vigredis.c hash.c
+SOURCES=vigredis.c hash.c list.c util.c dict.c
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=vigredis.out
 
-all: $(EXECUTABLE)
+all: $(EXECUTABLE) $(HEADERS)
 
 
 $(EXECUTABLE): $(OBJECTS) 
