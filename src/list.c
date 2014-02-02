@@ -19,17 +19,17 @@ int list_add(list* l,char* key,int klen,char*value,int vlen,int flag)
     
     tmp = list_find(l,key,klen);
     
-    if( (flag == FLAG_XX) && (tmp == NULL))
+    if( (flag == VR_FLAG_XX) && (tmp == NULL))
     {
         //printf("ERR NOT EXIST\n");
-        return ERR_NOTEXIST;
+        return VR_ERR_NOTEXIST;
         
     }
     
-    if( (flag == FLAG_NX) && (tmp != NULL))
+    if( (flag == VR_FLAG_NX) && (tmp != NULL))
     {
         //printf("ERR EXIST\n");
-        return ERR_EXIST;
+        return VR_ERR_EXIST;
     }
     
     if( tmp == NULL)
@@ -44,7 +44,7 @@ int list_add(list* l,char* key,int klen,char*value,int vlen,int flag)
         new->next = l->root;
         l->root = new;
         l->len ++;
-        return ERR_OK;
+        return VR_ERR_OK;
     }
     else
     {
@@ -53,7 +53,7 @@ int list_add(list* l,char* key,int klen,char*value,int vlen,int flag)
         tmp->value = (char*)malloc(vlen);
         strncpy(tmp->value,value,vlen);
         l->len ++;
-        return ERR_OK;
+        return VR_ERR_OK;
     }
     
 
@@ -87,7 +87,7 @@ int list_delete(list *l,char* key,int klen)
     
     if(tmp == NULL)
     {
-        return ERR_NOTEXIST;
+        return VR_ERR_NOTEXIST;
     }
     free(tmp->value);
     free(tmp->key);
@@ -99,7 +99,7 @@ int list_delete(list *l,char* key,int klen)
         
     free(tmp);
     l->len--;
-    return ERR_OK;
+    return VR_ERR_OK;
 }
 
 
@@ -108,10 +108,10 @@ void list_print(list *l)
 {
     list_node* tmp = l->root;
     
-    printf("Length = %d\n",l->len);
+    printf("Length = %lu\n",l->len);
     while( tmp != NULL)
     {
-        printf("%.*s : %.*s\n", tmp->klen, tmp->key , tmp->vlen, tmp->value);
+        printf("%.*s : %.*s\n", (int)tmp->klen, tmp->key , (int)tmp->vlen, tmp->value);
         tmp = tmp->next;
     }
 }

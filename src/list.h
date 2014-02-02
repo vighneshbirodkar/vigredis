@@ -4,28 +4,28 @@
 #ifndef __LIST_H__
 #define __LIST_H__
 
-#define FLAG_NONE 0
-#define FLAG_NX 1
-#define FLAG_XX 2
+#define VR_FLAG_NONE 0
+#define VR_FLAG_NX 1
+#define VR_FLAG_XX 2
 
 // Key Exists
-#define ERR_EXIST 1
-#define ERR_OK 0
+#define VR_ERR_EXIST 1
+#define VR_ERR_OK 0
 //Key does not exist
-#define ERR_NOTEXIST 2
+#define VR_ERR_NOTEXIST 2
 
 typedef struct list_node
 {
     struct list_node* next;
     char* key;
     char* value;
-    long klen;
-    long vlen;
+    unsigned long klen;
+    unsigned long vlen;
 } list_node;
 
 typedef struct list
 {
-    long len;
+    unsigned long len;
     list_node* root;
 } list;
 

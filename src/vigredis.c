@@ -13,7 +13,7 @@ int main()
     for(i=0;i<1000;i++)
     {
         gen_random(str[i],9);
-        list_add(&l,str[i],10,str[i],10,FLAG_NONE);
+        list_add(&l,str[i],10,str[i],10,VR_FLAG_NONE);
     }
     
     for(i=0;i<100;i++)
