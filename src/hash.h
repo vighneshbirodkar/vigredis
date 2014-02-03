@@ -11,6 +11,6 @@
 
 #define _DICT_SEED_ 0xa7b5437c
 
-uint32_t hash_string_32(char* string,int len);
+uint32_t hash_string_32(const char* string,int len);
 
 #endif

@@ -2,25 +2,26 @@
 #include "util.h"
 #include<stdio.h>
 
+#define SIZE VR_DICT_INIT_SIZE
 int main()
 {
 
-    long i;
-    list l;
+    dict d;
+    dict_init(&d);
+    char key[14];
+    unsigned long i;
     
-    list_init(&l);
-    char str[1000][10];
-    for(i=0;i<1000;i++)
+    for(i=0;i< SIZE*1000;i++)
     {
-        gen_random(str[i],9);
-        list_add(&l,str[i],10,str[i],10,VR_FLAG_NONE);
+        //gen_random(keys[i],100);
+        //gen_random(values[i],100);
+        sprintf(key,"hello %07d",(int)i);
+        //printf("%s\n",key);
+        dict_add(&d,key,13,"value",5,VR_FLAG_NONE);
+        //if( (i%1000) == 0)
+        //    printf("i = %ld\n",i);
     }
     
-    for(i=0;i<100;i++)
-    {
-        //gen_random(str[i],9);
-        list_delete(&l,str[i],10);
-    }
-    list_print(&l);
+    //dict_print(&d);
     return 0;
 }

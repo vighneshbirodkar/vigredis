@@ -108,7 +108,7 @@ void list_print(list *l)
 {
     list_node* tmp = l->root;
     
-    printf("Length = %lu\n",l->len);
+    printf("Length = %u\n",l->len);
     while( tmp != NULL)
     {
         printf("%.*s : %.*s\n", (int)tmp->klen, tmp->key , (int)tmp->vlen, tmp->value);
