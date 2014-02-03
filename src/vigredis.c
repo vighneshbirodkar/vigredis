@@ -1,27 +1,36 @@
 #include "dict.h"
 #include "util.h"
 #include<stdio.h>
+#include<stdlib.h>
 
-#define SIZE VR_DICT_INIT_SIZE
+
+#define SIZE 1000000
 int main()
 {
 
     dict d;
     dict_init(&d);
-    char key[14];
-    unsigned long i;
+    static char key[SIZE][14];
+    long i;
     
-    for(i=0;i< SIZE*1000;i++)
+    for(i=0;i< SIZE;i++)
     {
-        //gen_random(keys[i],100);
-        //gen_random(values[i],100);
-        sprintf(key,"hello %07d",(int)i);
-        //printf("%s\n",key);
-        dict_add(&d,key,13,"value",5,VR_FLAG_NONE);
-        //if( (i%1000) == 0)
-        //    printf("i = %ld\n",i);
+        sprintf(key[i],"hello %07d",(int)i);
+        dict_add(&d,key[i],13,"value",5,VR_FLAG_NONE);
+    }
+
+    for(i=(SIZE-1) ;i >= 0;i--)
+    {
+        if( dict_delete(&d,key[i],13) != VR_ERR_OK )
+            printf("Something is wrong\n");
     }
     
+    
     //dict_print(&d);
+    printf("new size = %u\n",d.size);
+    
+    free(d.table);
+    
+
     return 0;
 }

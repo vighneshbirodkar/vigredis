@@ -93,7 +93,7 @@ int list_delete(list *l,char* key,int klen)
     free(tmp->key);
     
     if(prev == NULL)
-        l->root = NULL;
+        l->root = tmp->next;
     else
         prev->next = tmp->next;
         
