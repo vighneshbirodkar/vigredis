@@ -16,6 +16,14 @@
 #define VR_ERR_OK 0
 //Key does not exist
 #define VR_ERR_NOTEXIST 2
+//Something has gone seriously wrong
+#define VR_ERR_FATAL 3
+
+//The node is of type string
+#define VR_TYPE_STRING 1
+
+//The node is of type int
+#define VR_TYPE_INT 2
 
 typedef struct list_node
 {
@@ -24,17 +32,19 @@ typedef struct list_node
     char* value;
     uint32_t klen;
     uint32_t vlen;
+    uint32_t score;
 } list_node;
 
 typedef struct list
 {
     uint32_t len;
     list_node* root;
+    char type;
 } list;
 
-void list_init(list *l);
+void list_init(list *l,char type);
 list_node* list_find(list *l,char* key,int klen);
-int list_add(list* l,char* key,int klen,char*value,int vlen,int flag);
+int list_add_string(list* l,char* key,int klen,char*value,int vlen,int flag);
 int list_delete(list *l,char* key,int klen);
 void list_print(list *l);
 

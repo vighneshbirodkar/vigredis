@@ -8,8 +8,9 @@
 #include "stdint.h"
 #include "list.h"
 
-#define VR_DICT_INIT_SIZE 64
+#define VR_DICT_INIT_SIZE 1024
 #define VR_DICT_EXPAND_RATIO 2
+#define VR_DICT_CONTRACT_RATIO 10
 
 
 typedef struct dict 
@@ -19,13 +20,15 @@ typedef struct dict
     //The number of slots in the dict
     uint32_t size;
     list* table;
+    char type;
 } dict;
 
 
-void dict_init(dict* d);
-int dict_add(dict *d,char *key,int klen,char* value,int vlen,int flag);
+void dict_init(dict* d,char type);
+int dict_add_string(dict *d,char *key,int klen,char* value,int vlen,int flag);
 int dict_delete(dict *d,char *key,int klen);
 void dict_expand(dict *d);
+void dict_contract(dict *d);
 void dict_print(dict *d);
 void dict_debug_print(dict *d);
 
