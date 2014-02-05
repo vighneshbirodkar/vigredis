@@ -5,14 +5,38 @@
 #include<stdlib.h>
 #include<string.h>
 #include<stdio.h>
+#include "vr_object.h"
 
-void list_init(list *l)
+void list_init(list *l,char type)
 {
+    l->type = type;
     l->len = 0;
     l->root = NULL;
 }
 
-int list_add_string(list* l,char* key,int klen,char*value,int vlen,int flag)
+
+int list_add_string(list* l,char* key,int klen,char* value,int vlen,int flag)
+{
+    if(l->type != VR_TYPE_STRING)
+    {
+        printf("Incompatible List Addition\n");
+        return VR_ERR_FATAL;
+    }
+    
+    vr_object obj;
+    obj.string.len = vlen;
+    obj.string.string = (char*)malloc(sizeof(char)*vlen);
+    strncpy(obj.string.string,value,vlen);
+    return list_add_object(l,key,klen,obj,flag);
+}
+
+int list_delete_string(list *l,char* key,int klen)
+{
+    return list_delete_object(l,key,klen,1);
+}
+
+
+int list_add_object(list* l,char* key,int klen,vr_object object,int flag)
 {
     list_node* new;
     list_node* tmp;
@@ -36,11 +60,11 @@ int list_add_string(list* l,char* key,int klen,char*value,int vlen,int flag)
     {
         new = (list_node*)malloc(sizeof(list_node));
         new->klen = klen;
-        new->vlen = vlen;
         new->key = (char*)malloc(klen);
-        new->value = (char*)malloc(vlen);
         strncpy(new->key,key,klen);
-        strncpy(new->value,value,vlen);
+
+        new->object = object;
+
         new->next = l->root;
         l->root = new;
         l->len ++;
@@ -48,10 +72,7 @@ int list_add_string(list* l,char* key,int klen,char*value,int vlen,int flag)
     }
     else
     {
-        tmp->vlen = vlen;
-        free(tmp->value);
-        tmp->value = (char*)malloc(vlen);
-        strncpy(tmp->value,value,vlen);
+        tmp->object = object;
         l->len ++;
         return VR_ERR_OK;
     }
@@ -72,7 +93,7 @@ list_node* list_find(list *l,char* key,int klen)
     return tmp;
 }
 
-int list_delete(list *l,char* key,int klen)
+int list_delete_object(list *l,char* key,int klen,char del_string)
 {
     list_node* tmp = l->root;
     list_node* prev = NULL;
@@ -89,15 +110,20 @@ int list_delete(list *l,char* key,int klen)
     {
         return VR_ERR_NOTEXIST;
     }
-    free(tmp->value);
-    free(tmp->key);
+    //free(tm);
     
     if(prev == NULL)
         l->root = tmp->next;
     else
         prev->next = tmp->next;
         
+    
+    if(del_string)
+        free(tmp->object.string.string);
+    
+    free(tmp->key);
     free(tmp);
+    
     l->len--;
     return VR_ERR_OK;
 }
@@ -108,10 +134,12 @@ void list_print(list *l)
 {
     list_node* tmp = l->root;
     
+    
     printf("Length = %u\n",l->len);
     while( tmp != NULL)
     {
-        printf("%.*s : %.*s\n", (int)tmp->klen, tmp->key , (int)tmp->vlen, tmp->value);
+        if(l->type == VR_TYPE_STRING )
+            printf("%.*s : %.*s\n", (int)tmp->klen, tmp->key , (int)tmp->object.string.len, tmp->object.string.string);
         tmp = tmp->next;
     }
 }
