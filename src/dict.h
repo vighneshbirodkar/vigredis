@@ -8,7 +8,7 @@
 #include "stdint.h"
 #include "list.h"
 
-#define VR_DICT_INIT_SIZE 1024
+#define VR_DICT_INIT_SIZE 64
 #define VR_DICT_EXPAND_RATIO 2
 #define VR_DICT_CONTRACT_RATIO 10
 
