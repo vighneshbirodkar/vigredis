@@ -4,7 +4,7 @@
 #include<stdlib.h>
 
 
-#define SIZE 10000000
+#define SIZE 1000000
 int main()
 {
 
@@ -19,7 +19,7 @@ int main()
         dict_add_string(&d,key[i],13,"value",5,VR_FLAG_NONE);
     }
 
-    for(i=(SIZE-1) ;i >= 100;i--)
+    for(i=(SIZE-1) ;i >= 0;i--)
     {
         if( dict_delete(&d,key[i],13) != VR_ERR_OK )
             printf("Something is wrong\n");
@@ -30,6 +30,7 @@ int main()
     //printf("new size = %u\n",d.size);
     
     free(d.table);
+
     
 
     return 0;

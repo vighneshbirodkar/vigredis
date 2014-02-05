@@ -6,7 +6,7 @@
 #include<string.h>
 #include<stdio.h>
 
-void inline list_init(list *l)
+void list_init(list *l)
 {
     l->len = 0;
     l->root = NULL;
