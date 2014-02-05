@@ -20,11 +20,10 @@ typedef struct dict
     //The number of slots in the dict
     uint32_t size;
     list* table;
-    char type;
 } dict;
 
 
-void dict_init(dict* d,char type);
+void dict_init(dict* d);
 int dict_add_string(dict *d,char *key,int klen,char* value,int vlen,int flag);
 int dict_delete(dict *d,char *key,int klen);
 void dict_expand(dict *d);

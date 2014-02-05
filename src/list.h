@@ -39,10 +39,9 @@ typedef struct list
 {
     uint32_t len;
     list_node* root;
-    char type;
 } list;
 
-void list_init(list *l,char type);
+void list_init(list *l);
 list_node* list_find(list *l,char* key,int klen);
 int list_add_string(list* l,char* key,int klen,char*value,int vlen,int flag);
 int list_delete(list *l,char* key,int klen);

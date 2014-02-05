@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-c -Wall 
+CFLAGS=-c -Wall -O3
 SOURCES=vigredis.c hash.c list.c util.c dict.c
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=vigredis.out

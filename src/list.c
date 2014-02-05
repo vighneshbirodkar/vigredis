@@ -6,11 +6,10 @@
 #include<string.h>
 #include<stdio.h>
 
-void list_init(list *l,char type)
+void inline list_init(list *l)
 {
     l->len = 0;
     l->root = NULL;
-    l->type = type;
 }
 
 int list_add_string(list* l,char* key,int klen,char*value,int vlen,int flag)
@@ -19,12 +18,6 @@ int list_add_string(list* l,char* key,int klen,char*value,int vlen,int flag)
     list_node* tmp;
     
     tmp = list_find(l,key,klen);
-    
-    if(l->type != VR_TYPE_STRING)
-    {
-        printf("Fatal Error, trying to add string value to int dict\n");
-        return VR_ERR_FATAL;
-    }
     
     if( (flag == VR_FLAG_XX) && (tmp == NULL))
     {

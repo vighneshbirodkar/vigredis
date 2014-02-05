@@ -8,15 +8,14 @@
 #include<stdio.h>
 
 
-void dict_init(dict* d,char type)
+void dict_init(dict* d)
 {
     uint32_t i;
-    d->type = type;
     d->len = 0;
     d->size = VR_DICT_INIT_SIZE;
     d->table = (list*)malloc(sizeof(list)*VR_DICT_INIT_SIZE);
     for(i=0;i < d->size ;i ++)
-        list_init(&d->table[i],type);
+        list_init(&d->table[i]);
 }
 
 
@@ -27,11 +26,6 @@ int dict_add_string(dict *d,char *key,int klen,char* value,int vlen,int flag)
     uint32_t index = hash % d->size;
     int ret_val;
     
-    if(d->type != VR_TYPE_STRING)
-    {
-        printf("Fatal Error, trying to add string value to int dict\n");
-        return VR_ERR_FATAL;
-    }
     ret_val = list_add_string(&d->table[index],key,klen,value,vlen,flag);
     if( ret_val == VR_ERR_OK)
         d->len++;
@@ -73,11 +67,10 @@ void dict_expand(dict *d)
     d->size = old_size*VR_DICT_EXPAND_RATIO;
     
     for(i=0;i < d->size ;i ++)
-        list_init(&d->table[i],d->type);
+        list_init(&d->table[i]);
     
     d->len = 0;
     
-
     
     for(i=0;i < old_size;i++)
     {
@@ -117,7 +110,7 @@ void dict_contract(dict *d)
     d->size = new_size;
     
     for(i=0;i < d->size ;i ++)
-        list_init(&d->table[i],d->type);
+        list_init(&d->table[i]);
     
     //printf("Starting Loop\n");
     for(i=0;i < old_size;i++)

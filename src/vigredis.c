@@ -4,12 +4,12 @@
 #include<stdlib.h>
 
 
-#define SIZE 1000000
+#define SIZE 10000000
 int main()
 {
 
     dict d;
-    dict_init(&d,VR_TYPE_STRING);
+    dict_init(&d);
     static char key[SIZE][14];
     long i;
     
@@ -24,7 +24,7 @@ int main()
         if( dict_delete(&d,key[i],13) != VR_ERR_OK )
             printf("Something is wrong\n");
     }
-    
+
     
     //dict_print(&d);
     //printf("new size = %u\n",d.size);
