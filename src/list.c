@@ -23,11 +23,31 @@ int list_add_string(list* l,char* key,int klen,char* value,int vlen,int flag)
         return VR_ERR_FATAL;
     }
     
+    
     vr_object obj;
     obj.string.len = vlen;
     obj.string.string = (char*)malloc(sizeof(char)*vlen);
     strncpy(obj.string.string,value,vlen);
     return list_add_object(l,key,klen,obj,flag);
+}
+
+int list_add_int(list *l,char *key,int klen,int value,int flag)
+{
+    if(l->type != VR_TYPE_INT)
+    {
+        printf("Incompatible List Addition\n");
+        return VR_ERR_FATAL;
+    }
+    
+    vr_object obj;
+    obj.value = value;
+    return list_add_object(l,key,klen,obj,flag);
+    
+}
+
+int list_delete_int(list *l,char* key,int klen)
+{
+    return list_delete_object(l,key,klen,0);
 }
 
 int list_delete_string(list *l,char* key,int klen)
@@ -140,6 +160,8 @@ void list_print(list *l)
     {
         if(l->type == VR_TYPE_STRING )
             printf("%.*s : %.*s\n", (int)tmp->klen, tmp->key , (int)tmp->object.string.len, tmp->object.string.string);
+        if(l->type == VR_TYPE_INT)
+            printf("%.*s : %d\n", (int)tmp->klen, tmp->key , (int)tmp->object.value);
         tmp = tmp->next;
     }
 }

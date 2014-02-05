@@ -45,6 +45,8 @@ void list_init(list *l,char type);
 list_node* list_find(list *l,char* key,int klen);
 int list_add_object(list* l,char* key,int klen,vr_object object,int flag);
 int list_add_string(list* l,char* key,int klen,char* value,int vlen,int flag);
+int list_add_int(list *l,char *key,int klen,int value,int flag);
+int list_delete_int(list *l,char* key,int klen);
 int list_delete_string(list *l,char* key,int klen);
 int list_delete_object(list *l,char* key,int klen,char del_string);
 void list_print(list *l);
