@@ -47,12 +47,12 @@ int list_add_int(list *l,char *key,int klen,int value,int flag)
 
 int list_delete_int(list *l,char* key,int klen)
 {
-    return list_delete_object(l,key,klen,0);
+    return list_delete_object(l,key,klen);
 }
 
 int list_delete_string(list *l,char* key,int klen)
 {
-    return list_delete_object(l,key,klen,1);
+    return list_delete_object(l,key,klen);
 }
 
 
@@ -93,8 +93,7 @@ int list_add_object(list* l,char* key,int klen,vr_object object,int flag)
     else
     {
         tmp->object = object;
-        l->len ++;
-        return VR_ERR_OK;
+        return VR_ERR_EXIST;
     }
     
 
@@ -113,7 +112,7 @@ list_node* list_find(list *l,char* key,int klen)
     return tmp;
 }
 
-int list_delete_object(list *l,char* key,int klen,char del_string)
+int list_delete_object(list *l,char* key,int klen)
 {
     list_node* tmp = l->root;
     list_node* prev = NULL;
@@ -127,9 +126,7 @@ int list_delete_object(list *l,char* key,int klen,char del_string)
     }
     
     if(tmp == NULL)
-    {
         return VR_ERR_NOTEXIST;
-    }
     //free(tm);
     
     if(prev == NULL)
@@ -138,14 +135,14 @@ int list_delete_object(list *l,char* key,int klen,char del_string)
         prev->next = tmp->next;
         
     
-    if(del_string)
+    if(l->type == VR_TYPE_STRING)
         free(tmp->object.string.string);
     
     free(tmp->key);
     free(tmp);
     
     l->len--;
-    return VR_ERR_OK;
+    return VR_ERR_EXIST;
 }
 
 
