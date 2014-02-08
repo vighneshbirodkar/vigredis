@@ -189,6 +189,8 @@ void dict_print(dict *d)
 
 }
 
+//TODO Add dict delte
+//TODO add dict get
 
 
 

@@ -1,33 +1,36 @@
 #include "dict.h"
 #include "util.h"
+#include "skip_list.h"
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<time.h>
 
 
-#define SIZE 1000000
-int main()
+#define SIZE 1000
+int main(int argc,char** argv)
 {
-
-    dict d;
-    dict_init(&d,VR_TYPE_STRING);
-    static char key[SIZE][14];
-    long i;
-
-    for(i=0;i< SIZE;i++)
-    {
-        sprintf(key[i],"hello %07d",(int)i);
-        dict_add_string(&d,key[i],13,"value",5,VR_FLAG_NONE);
-    }
-
-    for(i=(SIZE-1) ;i >= 0;i--)
-    {
-        if( dict_delete(&d,key[i],13) != VR_ERR_EXIST )
-            printf("Something is wrong\n");
-    }
-
+    struct timespec start, stop;
+    int i;
+    int r;
+    long range = atol(argv[1]);
+    skip_list sl;
+    int not_there = rand();
+    skip_list_init(&sl);
+    srand (10);
     
-    dict_print(&d);
-    free(d.table);
+    for(i=0;i < range;i++)
+    {
+        r = rand();
+        if(r != not_there)
+            skip_list_insert(&sl,r);
+    }
+    
+    clock_gettime( CLOCK_PROCESS_CPUTIME_ID, &start);
+    skip_list_insert(&sl,not_there);
+    clock_gettime( CLOCK_PROCESS_CPUTIME_ID, &stop);
+    printf("%d    %ld\n",range,stop.tv_nsec - start.tv_nsec);
+
+
     return 0;
 }
