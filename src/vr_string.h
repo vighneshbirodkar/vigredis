@@ -5,7 +5,7 @@
 #ifndef __VR_STRING_H__
 #define __VR_STRING_H__
 
-struct vr_string 
+typedef struct vr_string 
 {
     int len;
     char* string;

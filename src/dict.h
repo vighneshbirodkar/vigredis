@@ -28,6 +28,8 @@ void dict_init(dict* d,char type);
 int dict_add_string(dict *d,char* key,int klen,char* value,int vlen,int flag);
 int dict_add_object(dict *d,char *key,int klen,vr_object object,int flag);
 int dict_delete(dict *d,char *key,int klen);
+vr_object* dict_get(dict *d,char* ket,int klen);
+void dict_clear(dict *d);
 void dict_expand(dict *d);
 void dict_contract(dict *d);
 void dict_print(dict *d);

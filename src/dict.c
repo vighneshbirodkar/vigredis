@@ -7,6 +7,7 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
+#include"vr_string.h"
 
 
 void dict_init(dict* d,char type)
@@ -189,8 +190,41 @@ void dict_print(dict *d)
 
 }
 
-//TODO Add dict delte
-//TODO add dict get
+vr_object* dict_get(dict *d,char* key,int klen)
+{
+    uint32_t hash = hash_string_32(key,klen);
+    uint32_t index = hash % d->size;
+    list_node* tmp;
+    
+    tmp = list_find(&d->table[index],key,klen);
+    return &tmp->object;
+
+}
+
+void dict_clear(dict *d)
+{
+    list_node* tmp,*current;
+    int i;
+    for(i=0;i < d->size;i++)
+    {
+        current = d->table[i].root;
+        while(current != NULL)
+        {
+            tmp = current;
+            current = current->next;
+            free(tmp->key);
+            if(d->type == VR_TYPE_STRING)
+            {
+                free(tmp->object.string.string);
+            }
+            free(tmp);
+        }
+    
+    }
+    free(d->table);
+}
+
+
 
 
 

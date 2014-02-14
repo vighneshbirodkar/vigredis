@@ -10,27 +10,24 @@
 #define SIZE 1000
 int main(int argc,char** argv)
 {
-    struct timespec start, stop;
+    dict d;
     int i;
-    int r;
-    long range = atol(argv[1]);
-    skip_list sl;
-    int not_there = rand();
-    skip_list_init(&sl);
-    srand (10);
-    
-    for(i=0;i < range;i++)
+    dict_init(&d,VR_TYPE_STRING);
+    char key[10] = {0};
+    for(i=0;i<SIZE;i++)
     {
-        r = rand();
-        if(r != not_there)
-            skip_list_insert(&sl,r);
+        sprintf(key,"%9d",i);
+        dict_add_string(&d,key,10,"hello",5,VR_FLAG_NONE);
     }
     
-    clock_gettime( CLOCK_PROCESS_CPUTIME_ID, &start);
-    skip_list_insert(&sl,not_there);
-    clock_gettime( CLOCK_PROCESS_CPUTIME_ID, &stop);
-    printf("%d    %ld\n",range,stop.tv_nsec - start.tv_nsec);
-
-
+    /*for(i=0;i<SIZE;i++)
+    {
+        sprintf(key,"%9d",i);
+        dict_delete(&d,key,10);
+    }
+    
+    free(d.table);
+    */
+    dict_clear(&d);
     return 0;
 }
