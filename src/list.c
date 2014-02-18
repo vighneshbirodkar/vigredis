@@ -7,6 +7,9 @@
 #include<stdio.h>
 #include "vr_object.h"
 
+/*
+ * Initialization
+ */
 void list_init(list *l,char type)
 {
     l->type = type;
@@ -15,6 +18,22 @@ void list_init(list *l,char type)
 }
 
 
+/*
+ * Adds a key, value pair in the list.
+ * where value is a string
+ * 
+ * if flag = VR_FLAG_NONE
+ *      values of existing keys are replaced
+ * if flag = VR_FLAG_NX
+ *      values are only added if key exists
+ * if flag = VR_FLAG_XX
+ *      values are replaced only if keys exist
+ *
+ * returns 
+ * VR_ERR_OK - if key didn't exist
+ * VR_ERR_EXIST - if key existed
+ * VR_ERR_NOTEXIST - if key did not exist
+ */
 int list_add_string(list* l,char* key,int klen,char* value,int vlen,int flag)
 {
     if(l->type != VR_TYPE_STRING)
@@ -31,6 +50,22 @@ int list_add_string(list* l,char* key,int klen,char* value,int vlen,int flag)
     return list_add_object(l,key,klen,obj,flag);
 }
 
+/*
+ * Adds a key, value pair in the list.
+ * where value is int
+ * 
+ * if flag = VR_FLAG_NONE
+ *      values of existing keys are replaced
+ * if flag = VR_FLAG_NX
+ *      values are only added if key exists
+ * if flag = VR_FLAG_XX
+ *      values are replaced only if keys exist
+ *
+ * returns 
+ * VR_ERR_OK - if key didn't exist
+ * VR_ERR_EXIST - if key existed
+ * VR_ERR_NOTEXIST - if key did not exist and flag = VR_FLAG_XX
+ */
 int list_add_int(list *l,char *key,int klen,int value,int flag)
 {
     if(l->type != VR_TYPE_INT)
@@ -45,17 +80,36 @@ int list_add_int(list *l,char *key,int klen,int value,int flag)
     
 }
 
+/*
+ * Deletes the key, see list_delete_object
+ */
 int list_delete_int(list *l,char* key,int klen)
 {
     return list_delete_object(l,key,klen);
 }
 
+/*
+ * Deletes the key, see list_delete_object
+ */
 int list_delete_string(list *l,char* key,int klen)
 {
     return list_delete_object(l,key,klen);
 }
 
-
+/*
+ * Adds a vr_object to the list, with the given key
+ * if flag = VR_FLAG_NONE
+ *      values of existing keys are replaced
+ * if flag = VR_FLAG_NX
+ *      values are only added if key exists
+ * if flag = VR_FLAG_XX
+ *      values are replaced only if keys exist
+ *
+ * returns 
+ * VR_ERR_OK - if key didn't exist
+ * VR_ERR_EXIST - if key existed
+ * VR_ERR_NOTEXIST - if key did not existist
+ */
 int list_add_object(list* l,char* key,int klen,vr_object object,int flag)
 {
     list_node* new;
@@ -64,17 +118,10 @@ int list_add_object(list* l,char* key,int klen,vr_object object,int flag)
     tmp = list_find(l,key,klen);
     
     if( (flag == VR_FLAG_XX) && (tmp == NULL))
-    {
-        //printf("ERR NOT EXIST\n");
         return VR_ERR_NOTEXIST;
-        
-    }
     
     if( (flag == VR_FLAG_NX) && (tmp != NULL))
-    {
-        //printf("ERR EXIST\n");
         return VR_ERR_EXIST;
-    }
     
     if( tmp == NULL)
     {
@@ -99,6 +146,11 @@ int list_add_object(list* l,char* key,int klen,vr_object object,int flag)
 
 }
 
+/*
+ * Returns a pointer to the node of the list, with given key
+ * NULL, if the key did not exist
+ */
+ 
 list_node* list_find(list *l,char* key,int klen)
 {
     list_node* tmp = l->root;
@@ -112,6 +164,13 @@ list_node* list_find(list *l,char* key,int klen)
     return tmp;
 }
 
+/*
+ * Deletes object with given key
+ * returns 
+ * VR_ERR_EXIST - if object existed and was deleted
+ * VR_ERR_NOTEXIST - if key wasn't there
+ *
+ */
 int list_delete_object(list *l,char* key,int klen)
 {
     list_node* tmp = l->root;
@@ -127,7 +186,6 @@ int list_delete_object(list *l,char* key,int klen)
     
     if(tmp == NULL)
         return VR_ERR_NOTEXIST;
-    //free(tm);
     
     if(prev == NULL)
         l->root = tmp->next;
@@ -146,7 +204,9 @@ int list_delete_object(list *l,char* key,int klen)
 }
 
 
-
+/*
+ * Prints a list, debugging purpose
+ */
 void list_print(list *l)
 {
     list_node* tmp = l->root;

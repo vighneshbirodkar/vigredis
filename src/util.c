@@ -6,6 +6,7 @@
 
 /* 
  * DEBAGGING
+ * Generates a random string in 's'
 */
 void gen_random(char *s,const int len) 
 {
@@ -22,6 +23,9 @@ void gen_random(char *s,const int len)
     s[len] = 0;
 }
 
+/*
+ *changes chars in s to lower case
+ */
 void str_lower( char* s )
 {
     int i=0;
@@ -35,6 +39,9 @@ void str_lower( char* s )
     }
 }
 
+/*
+ * Strips whitespaces at the end of string
+ */
 void rstrip(char* s)
 {
     int i = strlen(s)-1;
@@ -50,6 +57,9 @@ void rstrip(char* s)
     }
 }
 
+/*
+ * Checks if string is an int ( only has digits)
+ */
 int isint(char *s)
 {
     int i=0;

@@ -13,7 +13,10 @@
  
 #define MAXLINE 1000
 
-
+/*
+ * Parses and handles set command
+ * will parse string, and reply on connfd
+ */
 void handle_set(int connfd,dict *kv_dict,char* string)
 {
     int ret_val;
@@ -36,6 +39,7 @@ void handle_set(int connfd,dict *kv_dict,char* string)
     key = strtok(NULL," ");
     if(key == NULL)
     {
+        //syntax error if key isn't there
         sprintf(reply,VR_REPLY_WRONG_ARG_SET);
         ret_val = write(connfd, reply, strlen(reply)+1);
         return;
@@ -44,6 +48,7 @@ void handle_set(int connfd,dict *kv_dict,char* string)
     value = strtok(NULL," ");
     if(value == NULL)
     {
+        //syntax error if value isn't there
         sprintf(reply,VR_REPLY_WRONG_ARG_SET);
         ret_val = write(connfd, reply, strlen(reply)+1);
         return;
@@ -55,19 +60,15 @@ void handle_set(int connfd,dict *kv_dict,char* string)
     {
         
         next = strtok(NULL," ");
-        printf("i = %d,next = %s\n",i,next);
         str_lower(next);
         
         //Nothing more is left, break
         if (next == NULL)
-        {
-            printf("Next NULL\n");
             break;
-        }
+        
         //px is set, scan next token for int
         else if(strcmp(next,"px") == 0)
         {
-            
             next = strtok(NULL," ");
             if ( isint(next) )
                 px = atoi(next);
@@ -92,15 +93,12 @@ void handle_set(int connfd,dict *kv_dict,char* string)
             }
         }
         else if(strcmp(next,"xx") == 0)
-        {
             flag_int = VR_FLAG_XX;
-        }
         else if(strcmp(next,"nx") == 0)
-        {
             flag_int = VR_FLAG_NX;
-        }
         else
         {
+            //some flag which is not known
             sprintf(reply,VR_REPLY_SYNTAX_ERROR);
             ret_val = write(connfd, reply, strlen(reply)+1);
             return;
@@ -114,6 +112,9 @@ void handle_set(int connfd,dict *kv_dict,char* string)
         ret_val = write(connfd, reply, strlen(reply)+1);
         return;
     }
+    
+    //Add if key exists,
+    //only VR_ERR_EXIST is the right return value 
     if(flag_int == VR_FLAG_XX)
     {
 
@@ -134,6 +135,8 @@ void handle_set(int connfd,dict *kv_dict,char* string)
         }
     }
     
+    //Add if key does not exist
+    //only VR_ERR_OK is valid return values
     if(flag_int == VR_FLAG_NX)
     {
         ret_val = dict_add_string(kv_dict,key,strlen(key),value,strlen(value),VR_FLAG_NX);
@@ -152,7 +155,8 @@ void handle_set(int connfd,dict *kv_dict,char* string)
         }
     }
 
-    
+    //Add key irrespective
+    //VR_ERR_OK and VR_ERR_EXIST are valid return values
     if(flag_int == VR_FLAG_NONE)
     {
         ret_val = dict_add_string(kv_dict,key,strlen(key),value,strlen(value),VR_FLAG_NONE);
@@ -169,6 +173,11 @@ void handle_set(int connfd,dict *kv_dict,char* string)
         }
     }
 }
+
+/*
+ * Handles data on connfd
+ * Will read and parse the string, and reply appropriately
+ */
 void client_handle(int connfd,dict* kv_dict)
 {
     char buffer[MAXLINE];

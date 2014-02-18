@@ -9,7 +9,9 @@
 #include<string.h>
 #include"vr_string.h"
 
-
+/*
+ * Initialization
+ */
 void dict_init(dict* d,char type)
 {
     uint32_t i;
@@ -21,7 +23,9 @@ void dict_init(dict* d,char type)
         list_init(&d->table[i],type);
 }
 
-
+/*
+ * adds an int to dict,see dic_add_object
+ */
 int dict_add_int(dict *d,char *key,int klen,int value,int flag)
 {
     if(d->type != VR_TYPE_INT)
@@ -36,7 +40,9 @@ int dict_add_int(dict *d,char *key,int klen,int value,int flag)
     
 }
 
-
+/*
+ * adds an string to dict,see dic_add_object
+ */
 int dict_add_string(dict *d,char* key,int klen,char* value,int vlen,int flag)
 {
     if(d->type != VR_TYPE_STRING)
@@ -53,7 +59,21 @@ int dict_add_string(dict *d,char* key,int klen,char* value,int vlen,int flag)
     return dict_add_object(d,key,klen,obj,flag);
 }
 
-
+/*
+ * Adds a key, value pair in the dict.
+ * 
+ * if flag = VR_FLAG_NONE
+ *      values of existing keys are replaced
+ * if flag = VR_FLAG_NX
+ *      values are only added if key exists
+ * if flag = VR_FLAG_XX
+ *      values are replaced only if keys exist
+ *
+ * returns 
+ * VR_ERR_OK - if key didn't exist
+ * VR_ERR_EXIST - if key existed
+ * VR_ERR_NOTEXIST - if key did not exist and flag = VR_FLAG_XX
+ */
 int dict_add_object(dict *d,char* key,int klen,vr_object object,int flag)
 {
     uint32_t hash = hash_string_32(key,klen);
@@ -69,7 +89,12 @@ int dict_add_object(dict *d,char* key,int klen,vr_object object,int flag)
     return ret_val;
 }
 
-
+/*
+ * Deletes a key from dict,
+ * returns 
+ * VR_ERR_EXIST if key existed
+ * VR_NOT_EXIST if key didnt exist
+ */
 int dict_delete(dict *d,char *key,int klen)
 {
     uint32_t hash = hash_string_32(key,klen);
@@ -88,7 +113,9 @@ int dict_delete(dict *d,char *key,int klen)
     return ret_val;
 }
 
-
+/*
+ * Increases size by VR_DICT_CONTRACT_RATIO times
+ */
 void dict_expand(dict *d)
 {
     list* old_table = d->table;
@@ -125,7 +152,10 @@ void dict_expand(dict *d)
     
 }
 
-
+/*
+ * Contracts dict to least size to hold all elements such that size is a 
+ * multiple of 2
+ */
 void dict_contract(dict *d)
 {
     list* old_table = d->table;
@@ -168,7 +198,9 @@ void dict_contract(dict *d)
     
 }
 
-
+/*
+ * displays contents of dict
+ */
 void dict_print(dict *d)
 {
     uint32_t i;
@@ -190,6 +222,9 @@ void dict_print(dict *d)
 
 }
 
+/*
+ * reutrns object pointer for key, NULL if key doesn't exist
+ */
 vr_object* dict_get(dict *d,char* key,int klen)
 {
     uint32_t hash = hash_string_32(key,klen);
@@ -197,10 +232,16 @@ vr_object* dict_get(dict *d,char* key,int klen)
     list_node* tmp;
     
     tmp = list_find(&d->table[index],key,klen);
-    return &tmp->object;
+    if(tmp)
+        return &tmp->object;
+    else
+        return NULL;
 
 }
 
+/*
+ * deletes the dict, freeing all memory used
+ */
 void dict_clear(dict *d)
 {
     list_node* tmp,*current;
@@ -223,8 +264,5 @@ void dict_clear(dict *d)
     }
     free(d->table);
 }
-
-
-
 
 

@@ -16,8 +16,9 @@
 
 int main(int argc,char** argv)
 {
-
+    //dict responsible to hold all key value pairs
     dict kv_dict;
+    
     struct timeval select_wait;
     select_wait.tv_sec = VR_SELECT_SEC;
     select_wait.tv_usec = VR_SELECT_USEC;
@@ -96,7 +97,7 @@ int main(int argc,char** argv)
         if (sigismember (&pending_mask, SIGINT)) 
         {
             dict_clear(&kv_dict);
-            printf("Clean Up\n");
+            printf("\n----- Exiting, Bye ! -----\n");
             exit(0);
         }
     }
