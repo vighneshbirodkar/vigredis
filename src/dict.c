@@ -81,6 +81,11 @@ int dict_get_bit(dict *d,char* key,int klen,int n)
         return 0;
 }
 
+/*
+ * gets bit at specified offset of key
+ * if key doesnt exist, its added with all 0s, and bit is set
+ */
+
 int dict_set_bit(dict *d,char* key,int klen,int n,char b)
 {
     list_node* tmp;

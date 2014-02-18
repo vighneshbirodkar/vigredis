@@ -6,5 +6,6 @@
 
 void client_handle(int connfd,dict* kv_dict);
 void handle_set(int connfd,dict *kv_dict,char* string);
+void handle_get(int connfd,dict *kv_dict,char* string);
 
 #endif

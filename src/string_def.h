@@ -14,6 +14,10 @@
 #define VR_REPLY_OK "+OK\n"
 //Mostly returned when key noy found
 #define VR_REPLY_NOT_OK "$-1\n"
+//reply for a string
+#define VR_REPLY_STRING "$%d\n%.*s\n"
+//not found
+#define VR_REPLY_NOT_FOUND "$-1\n"
 
 
 #endif

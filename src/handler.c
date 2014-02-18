@@ -14,6 +14,63 @@
 #define MAXLINE 1000
 
 /*
+ * Handles data on connfd
+ * Will read and parse the string, and reply appropriately
+ */
+void client_handle(int connfd,dict* kv_dict)
+{
+    char buffer[MAXLINE];
+    char buffer_copy[MAXLINE];
+    char *command;
+    char reply[MAXLINE];
+    int ret_val;
+
+    bzero( buffer, MAXLINE);       
+    ret_val = read(connfd,buffer,MAXLINE);
+    
+    if(ret_val < 0)
+    {
+        perror("Error Reading");
+    }
+    
+    strcpy(buffer_copy,buffer);
+    
+    rstrip(buffer);
+    command = strtok(buffer," ");
+    
+    str_lower(command);
+    
+    if(command == NULL)
+    {
+        //TODO handle this
+        //No reply
+        return;
+    }
+    if(strcmp(command,"set") == 0)
+    {
+        handle_set(connfd,kv_dict,buffer_copy);
+        return;
+    }
+    
+    if(strcmp(command,"get") == 0)
+    {
+        handle_get(connfd,kv_dict,buffer_copy);
+        return;
+    }
+    
+    //Command is not known
+    sprintf(reply,VR_REPLY_UNKNOWN_COMMAND,command);
+
+    ret_val = write(connfd, reply, strlen(reply)+1);
+    if(ret_val < 0)
+    {
+        perror("write error");
+    }
+    
+}
+
+
+/*
  * Parses and handles set command
  * will parse string, and reply on connfd
  */
@@ -174,52 +231,66 @@ void handle_set(int connfd,dict *kv_dict,char* string)
     }
 }
 
-/*
- * Handles data on connfd
- * Will read and parse the string, and reply appropriately
- */
-void client_handle(int connfd,dict* kv_dict)
-{
-    char buffer[MAXLINE];
-    char buffer_copy[MAXLINE];
-    char *command;
-    char reply[MAXLINE];
-    int ret_val;
 
-    bzero( buffer, MAXLINE);       
-    ret_val = read(connfd,buffer,MAXLINE);
+void handle_get(int connfd,dict *kv_dict,char* string)
+{
+    int ret_val;
+    char reply[MAXLINE];
+    char* command,*key,*next;
+    vr_string *str;
     
-    if(ret_val < 0)
-    {
-        perror("Error Reading");
-    }
-    
-    strcpy(buffer_copy,buffer);
-    
-    rstrip(buffer);
-    command = strtok(buffer," ");
-    
+    rstrip(string);
+    command = strtok(string," ");
     str_lower(command);
     
-    if(command == NULL)
+    
+    if(strcmp(command,"get"))
     {
-        //TODO handle this
-        //No reply
-        return;
+        perror("Fatal error, command to set is not set");
     }
-    if(strcmp(command,"set") == 0)
+    
+    //Parse Key
+    key = strtok(NULL," ");
+    if(key == NULL)
     {
-        handle_set(connfd,kv_dict,buffer_copy);
+        //syntax error if key isn't there
+        sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val = write(connfd, reply, strlen(reply)+1);
         return;
     }
     
-    //Command is not known
-    sprintf(reply,VR_REPLY_UNKNOWN_COMMAND,command);
-
-    ret_val = write(connfd, reply, strlen(reply)+1);
-    if(ret_val < 0)
+    next = strtok(NULL," ");
+    if(next != NULL)
+    if(key == NULL)
     {
-        perror("write error");
+        //syntax error if key isn't there
+        sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val = write(connfd, reply, strlen(reply)+1);
+        return;
     }
     
+    str = dict_get_string(kv_dict,key,strlen(key));
+    if(str)
+    {
+        sprintf(reply,VR_REPLY_STRING,str->len,str->len,str->string);
+        ret_val = write(connfd, reply, strlen(reply)+1);
+    
+        if(ret_val < 0)
+        {
+            perror("Error Writing");
+        }
+    }
+    else
+    {
+        sprintf(reply,VR_REPLY_NOT_FOUND);
+        ret_val = write(connfd, reply, strlen(reply)+1);
+    
+        if(ret_val < 0)
+        {
+            perror("Error Writing");
+        }
+    }
+    //printf("L = %d\n",kv_dict->len);
 }
+
+
