@@ -12,13 +12,13 @@
 #define VR_FLAG_XX 2
 
 // Key Exists
-#define VR_ERR_EXIST 1
+#define VR_ERR_EXIST -1
 //In Short No Problemo
 #define VR_ERR_OK 0
 //Key does not exist
-#define VR_ERR_NOTEXIST 2
+#define VR_ERR_NOTEXIST -2
 //Something has gone seriously wrong
-#define VR_ERR_FATAL 3
+#define VR_ERR_FATAL -3
 
 //The node is of type string
 #define VR_TYPE_STRING 1

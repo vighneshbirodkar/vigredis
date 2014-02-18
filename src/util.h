@@ -3,5 +3,8 @@
 #define __UTIL_H__
 
 void gen_random(char *s,const int len) ;
+void str_lower( char* s );
+void rstrip(char* s);
+int isint(char* s);
 
 #endif
