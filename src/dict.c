@@ -51,12 +51,60 @@ int dict_add_string(dict *d,char* key,int klen,char* value,int vlen,int flag)
         return VR_ERR_FATAL;
     }
     
-    
     vr_object obj;
     obj.string.len = vlen;
     obj.string.string = (char*)malloc(sizeof(char)*vlen);
     strncpy(obj.string.string,value,vlen);
     return dict_add_object(d,key,klen,obj,flag);
+}
+
+/*
+ * gets bit at specified offset of key
+ * if key doesnt exist, return 0
+ */
+int dict_get_bit(dict *d,char* key,int klen,int n)
+{
+    list_node* tmp;
+    uint32_t hash = hash_string_32(key,klen);
+    uint32_t index = hash % d->size;
+    if(d->type != VR_TYPE_STRING)
+    {
+        printf("Incompatible Dict Operation\n");
+        return VR_ERR_FATAL;
+    }
+    
+    tmp = list_find(&d->table[index],key,klen);
+    
+    if(tmp)
+        return string_get_bit(&tmp->object.string,n);
+    else
+        return 0;
+}
+
+int dict_set_bit(dict *d,char* key,int klen,int n,char b)
+{
+    list_node* tmp;
+    uint32_t hash = hash_string_32(key,klen);
+    uint32_t index = hash % d->size;
+    if(d->type != VR_TYPE_STRING)
+    {
+        printf("Incompatible Dict Operation\n");
+        return VR_ERR_FATAL;
+    }
+    
+    tmp = list_find(&d->table[index],key,klen);
+    
+    if(tmp)
+        return string_set_bit(&tmp->object.string,n,b);
+    else
+    {
+        vr_object obj;
+        obj.string.string = NULL;
+        obj.string.len = 0;
+        dict_add_object(d,key,klen,obj,VR_FLAG_NONE);
+        return string_set_bit(&obj.string,n,b);
+        
+    }
 }
 
 /*
@@ -231,9 +279,9 @@ vr_string* dict_get_string(dict* d,char* key,int klen)
     if(d->type != VR_TYPE_STRING)
     {
         printf("Incompatible Dict Addition\n");
-        return VR_ERR_FATAL;
+        return NULL;
     }
-    return dict_get(d,key,klen);
+    return &dict_get(d,key,klen)->string;
 }
 
 

@@ -4,6 +4,10 @@
 #include<string.h>
 #include<stdio.h>
 
+/*
+ * reutrns bit at 'n'
+ * if 'n' exceeds length, returns 0
+ */
 int string_get_bit(vr_string* s,int n)
 {
     int index,offset;
@@ -25,6 +29,11 @@ int string_get_bit(vr_string* s,int n)
             return 0;
     }
 }
+
+/*
+ * sets bit at 'n'
+ * if 'n' exceeds length, string is expanded
+ */
 
 int string_set_bit(vr_string* s,int n,char bit)
 {

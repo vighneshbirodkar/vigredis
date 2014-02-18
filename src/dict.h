@@ -34,6 +34,8 @@ void dict_expand(dict *d);
 void dict_contract(dict *d);
 void dict_print(dict *d);
 void dict_debug_print(dict *d);
+int dict_set_bit(dict *d,char* key,int klen,int n,char b);
+int dict_get_bit(dict *d,char* key,int klen,int n);
 
 
 #endif
