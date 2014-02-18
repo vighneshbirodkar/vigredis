@@ -114,6 +114,7 @@ int list_add_object(list* l,char* key,int klen,vr_object object,int flag)
 {
     list_node* new;
     list_node* tmp;
+    vr_object old_object;
     
     tmp = list_find(l,key,klen);
     
@@ -139,7 +140,11 @@ int list_add_object(list* l,char* key,int klen,vr_object object,int flag)
     }
     else
     {
+        old_object = tmp->object;
         tmp->object = object;
+        if(l->type == VR_TYPE_STRING)
+            free(old_object.string.string);
+        
         return VR_ERR_EXIST;
     }
     

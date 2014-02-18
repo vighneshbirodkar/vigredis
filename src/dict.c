@@ -30,7 +30,7 @@ int dict_add_int(dict *d,char *key,int klen,int value,int flag)
 {
     if(d->type != VR_TYPE_INT)
     {
-        printf("Incompatible List Addition\n");
+        printf("Incompatible Dict Addition\n");
         return VR_ERR_FATAL;
     }
     
@@ -47,7 +47,7 @@ int dict_add_string(dict *d,char* key,int klen,char* value,int vlen,int flag)
 {
     if(d->type != VR_TYPE_STRING)
     {
-        printf("Incompatible List Addition\n");
+        printf("Incompatible Dict Addition\n");
         return VR_ERR_FATAL;
     }
     
@@ -221,6 +221,21 @@ void dict_print(dict *d)
     }
 
 }
+
+/*
+ * returns vr_string pointer to string pointed by key
+ * NULL is key didn't exist
+ */
+vr_string* dict_get_string(dict* d,char* key,int klen)
+{
+    if(d->type != VR_TYPE_STRING)
+    {
+        printf("Incompatible Dict Addition\n");
+        return VR_ERR_FATAL;
+    }
+    return dict_get(d,key,klen);
+}
+
 
 /*
  * reutrns object pointer for key, NULL if key doesn't exist

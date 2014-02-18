@@ -11,4 +11,8 @@ typedef struct vr_string
     char* string;
 } vr_string;
 
+
+int string_get_bit(vr_string* s,int n);
+int string_set_bit(vr_string* s,int n,char bit);
+
 #endif
