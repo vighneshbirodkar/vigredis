@@ -32,6 +32,7 @@ int string_set_bit(vr_string* s,int n,char bit)
     char mask,value;
     char* str = s->string;
     char *new_str;
+    int old_val;
     
     if ( n < s->len*8)
     {
@@ -39,6 +40,7 @@ int string_set_bit(vr_string* s,int n,char bit)
         offset = (n%8);
         mask = 0x80 >> offset;
         value = (bit*0x80) >> offset;
+        old_val = str[index] & mask;
         str[index] = (str[index] & ~mask) | (value & mask) ;
     }
     else
@@ -57,7 +59,11 @@ int string_set_bit(vr_string* s,int n,char bit)
         offset = (n%8);
         mask = 0x80 >> offset;
         value = (bit*0x80) >> offset;
+        old_val = str[index] & mask;
         str[index] = (str[index] & ~mask) | (value & mask) ;
     }
-    return 0;
+    if (old_val)
+        return 1;
+    else
+        return 0;
 }
