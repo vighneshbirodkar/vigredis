@@ -90,9 +90,12 @@ int main(int argc,char** argv)
             else 
             {
                 current_client = clients.header;
+                int i=0;
                 while(current_client!=NULL)
                 {
 
+                    if(current_client == current_client->next)
+                        perror("Fatal Error in Client List\n");
                     if(FD_ISSET(current_client->fd,&read_fds_copy))
                     {
                         
@@ -116,6 +119,7 @@ int main(int argc,char** argv)
                             read_fds_copy = read_fds;
                             current_client = client_list_delete(&clients,
                             current_client);
+                            continue;
                         }
                         //client_handle(i,&kv_dict);
                     }

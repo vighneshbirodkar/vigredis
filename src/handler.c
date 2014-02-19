@@ -43,8 +43,11 @@ client_info* client_list_delete(client_list* l,client_info* node)
     client_info* tmp;
     tmp = node->next;
     if(node == l->header)
-        l->header = NULL;
-    
+    {
+        l->header = l->header->next;
+        printf("del head\n");
+        
+    }
     if(node->prev!=NULL)
         node->prev->next = node->next;
     
