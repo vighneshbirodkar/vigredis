@@ -1,7 +1,7 @@
 import socket
 import time
 
-PORT = 30000
+PORT = 41000
 NUM = 50000
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -42,4 +42,4 @@ while i < NUM:
     
 stop = time.time()
 total = stop - start
-print "%d SET operations in %f seconds" %(NUM,total)
+print "%d GET operations in %f seconds" %(NUM,total)

@@ -32,6 +32,7 @@ typedef struct list_node
     int klen;
     char *key;
     vr_object object;
+    long expiry;
 } list_node;
 
 typedef struct list

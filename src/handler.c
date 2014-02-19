@@ -11,27 +11,67 @@
 #include "util.h"
 #include "string_def.h"
  
-#define MAXLINE 1000
+
+/*
+ * Initialize
+ */
+void client_list_init(client_list* l)
+{
+    l->header = NULL;
+}
+
+void client_list_add(client_list* l,int fd)
+{
+    client_info* new = (client_info*)malloc(sizeof(client_info));
+    new->fd = fd;
+    new->index = 0;
+    new->buffer = (char*)malloc(VR_BUFFER_LEN);
+    bzero(new->buffer,VR_BUFFER_LEN);
+    
+    new->next = l->header;
+    new->prev = NULL;
+    if(l->header)
+        l->header->prev = new;
+    l->header = new;
+}
+
+/*
+ * returns pointer to next node
+ */
+client_info* client_list_delete(client_list* l,client_info* node)
+{
+    client_info* tmp;
+    tmp = node->next;
+    if(node == l->header)
+        l->header = NULL;
+    
+    if(node->prev!=NULL)
+        node->prev->next = node->next;
+    
+    if(node->next!=NULL)
+        node->next->prev = node->prev;
+        
+    free(node->buffer);
+    free(node);
+    return tmp;
+}
 
 /*
  * Handles data on connfd
  * Will read and parse the string, and reply appropriately
  */
-void client_handle(int connfd,dict* kv_dict)
+void client_handle(client_info* client,dict* kv_dict)
 {
-    char buffer[MAXLINE];
-    char buffer_copy[MAXLINE];
+    char *buffer;
+    char buffer_copy[VR_MAX_MSG_LEN];
     char *command;
-    char reply[MAXLINE];
+    char reply[VR_MAX_MSG_LEN];
     int ret_val;
 
-    bzero( buffer, MAXLINE);       
-    ret_val = read(connfd,buffer,MAXLINE);
+    //bzero( buffer, MAXLINE);       
+    //ret_val = read(connfd,buffer,MAXLINE);
+    buffer = client->buffer;
     
-    if(ret_val < 0)
-    {
-        perror("Error Reading");
-    }
     
     strcpy(buffer_copy,buffer);
     
@@ -48,20 +88,20 @@ void client_handle(int connfd,dict* kv_dict)
     }
     if(strcmp(command,"set") == 0)
     {
-        handle_set(connfd,kv_dict,buffer_copy);
+        handle_set(client->fd,kv_dict,buffer_copy);
         return;
     }
     
     if(strcmp(command,"get") == 0)
     {
-        handle_get(connfd,kv_dict,buffer_copy);
+        handle_get(client->fd,kv_dict,buffer_copy);
         return;
     }
     
     //Command is not known
     sprintf(reply,VR_REPLY_UNKNOWN_COMMAND,command);
 
-    ret_val = write(connfd, reply, strlen(reply)+1);
+    ret_val = write(client->fd, reply, strlen(reply)+1);
     if(ret_val < 0)
     {
         perror("write error");
@@ -77,7 +117,7 @@ void client_handle(int connfd,dict* kv_dict)
 void handle_set(int connfd,dict *kv_dict,char* string)
 {
     int ret_val;
-    char reply[MAXLINE];
+    char reply[VR_MAX_MSG_LEN];
     char* command,*key,*value,*next;
     int flag_int = VR_FLAG_NONE;
     int px,ex,i;
@@ -101,6 +141,8 @@ void handle_set(int connfd,dict *kv_dict,char* string)
         ret_val = write(connfd, reply, strlen(reply)+1);
         return;
     }
+    
+    
     //Parse Value
     value = strtok(NULL," ");
     if(value == NULL)
@@ -235,7 +277,7 @@ void handle_set(int connfd,dict *kv_dict,char* string)
 void handle_get(int connfd,dict *kv_dict,char* string)
 {
     int ret_val;
-    char reply[MAXLINE];
+    char reply[VR_MAX_MSG_LEN];
     char* command,*key,*next;
     vr_string *str;
     
@@ -246,7 +288,7 @@ void handle_get(int connfd,dict *kv_dict,char* string)
     
     if(strcmp(command,"get"))
     {
-        perror("Fatal error, command to set is not set");
+        perror("Fatal error, command to get is not get");
     }
     
     //Parse Key
@@ -260,7 +302,14 @@ void handle_get(int connfd,dict *kv_dict,char* string)
     }
     
     next = strtok(NULL," ");
+    //Extra tokens
     if(next != NULL)
+    {
+        sprintf(reply,VR_REPLY_SYNTAX_ERROR);
+        ret_val = write(connfd, reply, strlen(reply)+1);
+        return;
+    }
+    
     if(key == NULL)
     {
         //syntax error if key isn't there

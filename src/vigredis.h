@@ -11,5 +11,7 @@
 #define VR_SELECT_SEC 0
 #define VR_SELECT_USEC 100
 
+#define VR_END_CHAR '\n'
+
 
 #endif

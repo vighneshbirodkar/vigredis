@@ -29,12 +29,15 @@ int main(int argc,char** argv)
     int ret_select;
     fd_set read_fds,read_fds_copy;
     struct sockaddr_in servaddr;
-    int i,yes=1;
+    int yes=1,ret;
     sigset_t sig_mask, pending_mask;
+    client_list clients;
+    client_info* current_client;
     
     
     // Initializations
     dict_init(&kv_dict,VR_TYPE_STRING);
+    client_list_init(&clients);
     
     
     FD_ZERO(&read_fds_copy);
@@ -67,6 +70,7 @@ int main(int argc,char** argv)
     {
         wait_copy = select_wait;
         read_fds_copy = read_fds;
+        
         ret_select = select(maxfd + 1,&read_fds_copy,NULL,NULL,&wait_copy);
 
         if( ret_select > 0)
@@ -78,24 +82,56 @@ int main(int argc,char** argv)
             {
                 connfd = accept(listenfd,  NULL, NULL);
                 FD_SET(connfd,&read_fds);
+                client_list_add(&clients,connfd);
                 maxfd = MAX(maxfd,connfd);
                 printf("Client Connected\n");
                 
             } // Data, Data , Data !!
             else 
             {
-                for(i=0;i<maxfd+1;i++)
+                current_client = clients.header;
+                while(current_client!=NULL)
                 {
-                    if(FD_ISSET(i,&read_fds_copy))
+
+                    if(FD_ISSET(current_client->fd,&read_fds_copy))
                     {
-                        client_handle(i,&kv_dict);
+                        
+                        //read into buffer till last char is newline
+                        ret = read(current_client->fd,
+                            &current_client->buffer[current_client->index],
+                            VR_BUFFER_LEN);
+                        
+                        current_client->index += ret;
+                        if(current_client->buffer[current_client->index-1] == 
+                            VR_END_CHAR)
+                        {
+                            client_handle(current_client,&kv_dict);
+                            current_client->index = 0;
+                            bzero(current_client->buffer,VR_BUFFER_LEN);
+                        }
+                        if(ret == 0)
+                        {
+                            //CLient leaving
+                            FD_CLR(current_client->fd,&read_fds);
+                            read_fds_copy = read_fds;
+                            current_client = client_list_delete(&clients,
+                            current_client);
+                        }
+                        //client_handle(i,&kv_dict);
                     }
+                    if(current_client != NULL)
+                        current_client = current_client->next;
+                    
                 }
+
             }
         }
         sigpending (&pending_mask);
         if (sigismember (&pending_mask, SIGINT)) 
         {
+            current_client = clients.header;
+            while(current_client)
+                current_client = client_list_delete(&clients,current_client);
             dict_clear(&kv_dict);
             printf("\n----- Exiting, Bye ! -----\n");
             exit(0);
