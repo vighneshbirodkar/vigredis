@@ -3,7 +3,22 @@
 #include <ctype.h>
 #include<string.h>
 #include<stdio.h>
+#include <sys/time.h>
 
+
+/*
+ *Get time in ms
+ */
+ 
+double get_time_ms()
+{
+    struct timeval now;
+    double d;
+
+    gettimeofday(&now, NULL);
+    d = now.tv_sec + ((double)now.tv_usec)/1000;
+    return d;
+}
 /* 
  * DEBAGGING
  * Generates a random string in 's'

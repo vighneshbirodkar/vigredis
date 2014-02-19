@@ -90,7 +90,6 @@ int main(int argc,char** argv)
             else 
             {
                 current_client = clients.header;
-                int i=0;
                 while(current_client!=NULL)
                 {
 
@@ -130,6 +129,7 @@ int main(int argc,char** argv)
 
             }
         }
+        
         sigpending (&pending_mask);
         if (sigismember (&pending_mask, SIGINT)) 
         {

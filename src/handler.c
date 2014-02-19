@@ -120,7 +120,8 @@ void handle_set(int connfd,dict *kv_dict,char* string)
     char reply[VR_MAX_MSG_LEN];
     char* command,*key,*value,*next;
     int flag_int = VR_FLAG_NONE;
-    int px,ex,i;
+    int px=-1,ex=-1,i;
+    double expiry = -1;
     
     rstrip(string);
     command = strtok(string," ");
@@ -212,13 +213,22 @@ void handle_set(int connfd,dict *kv_dict,char* string)
         return;
     }
     
+    expiry = get_time_ms();
+    if(ex > 0)
+        expiry += ex;
+    if(px > 0)
+         expiry += ((double)px)/1000 ;
+         
+    if( (ex < 0)  && (px < 0))
+        expiry = -1;
+
     //Add if key exists,
     //only VR_ERR_EXIST is the right return value 
     if(flag_int == VR_FLAG_XX)
     {
 
         ret_val = dict_add_string(kv_dict,key,strlen(key),value,
-                        strlen(value),VR_FLAG_XX);
+                        strlen(value),VR_FLAG_XX,expiry);
                         
         if(ret_val == VR_ERR_EXIST)
         {
@@ -238,7 +248,8 @@ void handle_set(int connfd,dict *kv_dict,char* string)
     //only VR_ERR_OK is valid return values
     if(flag_int == VR_FLAG_NX)
     {
-        ret_val = dict_add_string(kv_dict,key,strlen(key),value,strlen(value),VR_FLAG_NX);
+        ret_val = dict_add_string(kv_dict,key,strlen(key),value,strlen(value),
+                VR_FLAG_NX,expiry);
         
         if(ret_val == VR_ERR_OK)
         {
@@ -258,7 +269,8 @@ void handle_set(int connfd,dict *kv_dict,char* string)
     //VR_ERR_OK and VR_ERR_EXIST are valid return values
     if(flag_int == VR_FLAG_NONE)
     {
-        ret_val = dict_add_string(kv_dict,key,strlen(key),value,strlen(value),VR_FLAG_NONE);
+        ret_val = dict_add_string(kv_dict,key,strlen(key),value,strlen(value),
+                VR_FLAG_NONE,expiry);
         
         if((ret_val == VR_ERR_OK) || (ret_val = VR_ERR_EXIST))
         {
@@ -280,6 +292,9 @@ void handle_get(int connfd,dict *kv_dict,char* string)
     char reply[VR_MAX_MSG_LEN];
     char* command,*key,*next;
     vr_string *str;
+    double expiry,t;
+    vr_object *obj;
+    
     
     rstrip(string);
     command = strtok(string," ");
@@ -318,10 +333,15 @@ void handle_get(int connfd,dict *kv_dict,char* string)
         return;
     }
     
-    str = dict_get_string(kv_dict,key,strlen(key));
+    obj = dict_get(kv_dict,key,strlen(key),&expiry);
+    str = &obj->string;
+    t = get_time_ms();
     if(str)
     {
-        sprintf(reply,VR_REPLY_STRING,str->len,str->len,str->string);
+        if((expiry > 0) && (expiry < t))
+            sprintf(reply,VR_REPLY_NOT_FOUND);
+        else
+            sprintf(reply,VR_REPLY_STRING,str->len,str->len,str->string);
         ret_val = write(connfd, reply, strlen(reply)+1);
     
         if(ret_val < 0)

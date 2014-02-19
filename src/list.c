@@ -34,7 +34,7 @@ void list_init(list *l,char type)
  * VR_ERR_EXIST - if key existed
  * VR_ERR_NOTEXIST - if key did not exist
  */
-int list_add_string(list* l,char* key,int klen,char* value,int vlen,int flag)
+int list_add_string(list* l,char* key,int klen,char* value,int vlen,int flag,double expiry)
 {
     if(l->type != VR_TYPE_STRING)
     {
@@ -47,7 +47,7 @@ int list_add_string(list* l,char* key,int klen,char* value,int vlen,int flag)
     obj.string.len = vlen;
     obj.string.string = (char*)malloc(sizeof(char)*vlen);
     strncpy(obj.string.string,value,vlen);
-    return list_add_object(l,key,klen,obj,flag);
+    return list_add_object(l,key,klen,obj,flag,expiry);
 }
 
 /*
@@ -66,7 +66,7 @@ int list_add_string(list* l,char* key,int klen,char* value,int vlen,int flag)
  * VR_ERR_EXIST - if key existed
  * VR_ERR_NOTEXIST - if key did not exist and flag = VR_FLAG_XX
  */
-int list_add_int(list *l,char *key,int klen,int value,int flag)
+int list_add_int(list *l,char *key,int klen,int value,int flag,double expiry)
 {
     if(l->type != VR_TYPE_INT)
     {
@@ -76,7 +76,7 @@ int list_add_int(list *l,char *key,int klen,int value,int flag)
     
     vr_object obj;
     obj.value = value;
-    return list_add_object(l,key,klen,obj,flag);
+    return list_add_object(l,key,klen,obj,flag,expiry);
     
 }
 
@@ -110,7 +110,7 @@ int list_delete_string(list *l,char* key,int klen)
  * VR_ERR_EXIST - if key existed
  * VR_ERR_NOTEXIST - if key did not existist
  */
-int list_add_object(list* l,char* key,int klen,vr_object object,int flag)
+int list_add_object(list* l,char* key,int klen,vr_object object,int flag,double expiry)
 {
     list_node* new;
     list_node* tmp;
@@ -132,6 +132,7 @@ int list_add_object(list* l,char* key,int klen,vr_object object,int flag)
         strncpy(new->key,key,klen);
 
         new->object = object;
+        new->expiry = expiry;
 
         new->next = l->root;
         l->root = new;
@@ -142,6 +143,7 @@ int list_add_object(list* l,char* key,int klen,vr_object object,int flag)
     {
         old_object = tmp->object;
         tmp->object = object;
+        tmp->expiry = expiry;
         if(l->type == VR_TYPE_STRING)
             free(old_object.string.string);
         

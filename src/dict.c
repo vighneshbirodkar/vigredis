@@ -26,7 +26,7 @@ void dict_init(dict* d,char type)
 /*
  * adds an int to dict,see dic_add_object
  */
-int dict_add_int(dict *d,char *key,int klen,int value,int flag)
+int dict_add_int(dict *d,char *key,int klen,int value,int flag,double expiry)
 {
     if(d->type != VR_TYPE_INT)
     {
@@ -36,14 +36,14 @@ int dict_add_int(dict *d,char *key,int klen,int value,int flag)
     
     vr_object obj;
     obj.value = value;
-    return dict_add_object(d,key,klen,obj,flag);
+    return dict_add_object(d,key,klen,obj,flag,expiry);
     
 }
 
 /*
  * adds an string to dict,see dic_add_object
  */
-int dict_add_string(dict *d,char* key,int klen,char* value,int vlen,int flag)
+int dict_add_string(dict *d,char* key,int klen,char* value,int vlen,int flag,double expiry)
 {
     if(d->type != VR_TYPE_STRING)
     {
@@ -55,7 +55,7 @@ int dict_add_string(dict *d,char* key,int klen,char* value,int vlen,int flag)
     obj.string.len = vlen;
     obj.string.string = (char*)malloc(sizeof(char)*vlen);
     strncpy(obj.string.string,value,vlen);
-    return dict_add_object(d,key,klen,obj,flag);
+    return dict_add_object(d,key,klen,obj,flag,expiry);
 }
 
 /*
@@ -106,7 +106,7 @@ int dict_set_bit(dict *d,char* key,int klen,int n,char b)
         vr_object obj;
         obj.string.string = NULL;
         obj.string.len = 0;
-        dict_add_object(d,key,klen,obj,VR_FLAG_NONE);
+        dict_add_object(d,key,klen,obj,VR_FLAG_NONE,-1);
         return string_set_bit(&obj.string,n,b);
         
     }
@@ -127,13 +127,13 @@ int dict_set_bit(dict *d,char* key,int klen,int n,char b)
  * VR_ERR_EXIST - if key existed
  * VR_ERR_NOTEXIST - if key did not exist and flag = VR_FLAG_XX
  */
-int dict_add_object(dict *d,char* key,int klen,vr_object object,int flag)
+int dict_add_object(dict *d,char* key,int klen,vr_object object,int flag,double expiry)
 {
     uint32_t hash = hash_string_32(key,klen);
     uint32_t index = hash % d->size;
     int ret_val;
     
-    ret_val = list_add_object(&d->table[index],key,klen,object,flag);
+    ret_val = list_add_object(&d->table[index],key,klen,object,flag,expiry);
     if( ret_val == VR_ERR_OK)
         d->len++;
         
@@ -194,7 +194,7 @@ void dict_expand(dict *d)
         {
             tmp = current;
             current = current->next;
-            dict_add_object(d,tmp->key,tmp->klen,tmp->object,VR_FLAG_NONE);
+            dict_add_object(d,tmp->key,tmp->klen,tmp->object,VR_FLAG_NONE,tmp->expiry);
             //printf("Added : %.*s\n", (int)tmp->klen, tmp->key );
             free(tmp->key);
             free(tmp);
@@ -239,7 +239,7 @@ void dict_contract(dict *d)
             tmp = current;
             current = current->next;
             //printf("Staring to Add\n");
-            dict_add_object(d,tmp->key,tmp->klen,tmp->object,VR_FLAG_NONE);
+            dict_add_object(d,tmp->key,tmp->klen,tmp->object,VR_FLAG_NONE,tmp->expiry);
             //printf("Added : %.*s\n", (int)tmp->klen, tmp->key );
             free(tmp->key);
             free(tmp);
@@ -279,21 +279,22 @@ void dict_print(dict *d)
  * returns vr_string pointer to string pointed by key
  * NULL is key didn't exist
  */
-vr_string* dict_get_string(dict* d,char* key,int klen)
+vr_string* dict_get_string(dict* d,char* key,int klen,double * expiry)
 {
     if(d->type != VR_TYPE_STRING)
     {
         printf("Incompatible Dict Addition\n");
         return NULL;
     }
-    return &dict_get(d,key,klen)->string;
+    return &dict_get(d,key,klen,expiry)->string;
 }
 
 
 /*
  * reutrns object pointer for key, NULL if key doesn't exist
+ * modifies expiry to expiry time
  */
-vr_object* dict_get(dict *d,char* key,int klen)
+vr_object* dict_get(dict *d,char* key,int klen,double* expiry)
 {
     uint32_t hash = hash_string_32(key,klen);
     uint32_t index = hash % d->size;
@@ -301,7 +302,10 @@ vr_object* dict_get(dict *d,char* key,int klen)
     
     tmp = list_find(&d->table[index],key,klen);
     if(tmp)
+    {
+        *expiry = tmp->expiry;
         return &tmp->object;
+    }
     else
         return NULL;
 
