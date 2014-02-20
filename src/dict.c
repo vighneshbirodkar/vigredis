@@ -230,6 +230,8 @@ void dict_expand(dict *d)
         }
     
     }
+    
+    printf("expand  %d:%d\n",old_size,d->size);
     free(old_table);
     
 }
@@ -275,6 +277,7 @@ void dict_contract(dict *d)
         }
     
     }
+    printf("contract  %d:%d\n",old_size,new_size);
     free(old_table);
     //printf("Contract Over\n");
     

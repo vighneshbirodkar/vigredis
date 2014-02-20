@@ -102,7 +102,7 @@ void client_handle(client_info* client,dict* kv_dict,skip_list* expiry_list)
     //Command is not known
     sprintf(reply,VR_REPLY_UNKNOWN_COMMAND,command);
 
-    ret_val = write(client->fd, reply, strlen(reply)+1);
+    ret_val = write(client->fd, reply, strlen(reply));
     if(ret_val < 0)
     {
         perror("write error");
@@ -140,7 +140,7 @@ void handle_set(int connfd,dict *kv_dict,skip_list* expiry_list,char* string)
     {
         //syntax error if key isn't there
         sprintf(reply,VR_REPLY_WRONG_ARG_SET);
-        ret_val = write(connfd, reply, strlen(reply)+1);
+        ret_val = write(connfd, reply, strlen(reply));
         return;
     }
     
@@ -151,7 +151,7 @@ void handle_set(int connfd,dict *kv_dict,skip_list* expiry_list,char* string)
     {
         //syntax error if value isn't there
         sprintf(reply,VR_REPLY_WRONG_ARG_SET);
-        ret_val = write(connfd, reply, strlen(reply)+1);
+        ret_val = write(connfd, reply, strlen(reply));
         return;
     }
     
@@ -176,7 +176,7 @@ void handle_set(int connfd,dict *kv_dict,skip_list* expiry_list,char* string)
             else
             {
                 sprintf(reply,VR_REPLY_SYNTAX_ERROR);
-                ret_val = write(connfd, reply, strlen(reply)+1);
+                ret_val = write(connfd, reply, strlen(reply));
                 return;
             }
         }
@@ -189,7 +189,7 @@ void handle_set(int connfd,dict *kv_dict,skip_list* expiry_list,char* string)
             else
             {
                 sprintf(reply,VR_REPLY_SYNTAX_ERROR);
-                ret_val = write(connfd, reply, strlen(reply)+1);
+                ret_val = write(connfd, reply, strlen(reply));
                 return;
             }
         }
@@ -201,7 +201,7 @@ void handle_set(int connfd,dict *kv_dict,skip_list* expiry_list,char* string)
         {
             //some flag which is not known
             sprintf(reply,VR_REPLY_SYNTAX_ERROR);
-            ret_val = write(connfd, reply, strlen(reply)+1);
+            ret_val = write(connfd, reply, strlen(reply));
             return;
         }
     }
@@ -210,7 +210,7 @@ void handle_set(int connfd,dict *kv_dict,skip_list* expiry_list,char* string)
     if(next != NULL)
     {
         sprintf(reply,VR_REPLY_SYNTAX_ERROR);
-        ret_val = write(connfd, reply, strlen(reply)+1);
+        ret_val = write(connfd, reply, strlen(reply));
         return;
     }
     
@@ -240,13 +240,13 @@ void handle_set(int connfd,dict *kv_dict,skip_list* expiry_list,char* string)
         if(ret_val == VR_ERR_EXIST)
         {
             sprintf(reply,VR_REPLY_OK);
-            ret_val = write(connfd, reply, strlen(reply)+1);
+            ret_val = write(connfd, reply, strlen(reply));
             return;
         }
         else // Key did not exist
         {
             sprintf(reply,VR_REPLY_NOT_OK);
-            ret_val = write(connfd, reply, strlen(reply)+1);
+            ret_val = write(connfd, reply, strlen(reply));
             return;
         }
     }
@@ -261,13 +261,13 @@ void handle_set(int connfd,dict *kv_dict,skip_list* expiry_list,char* string)
         if(ret_val == VR_ERR_OK)
         {
             sprintf(reply,VR_REPLY_OK);
-            ret_val = write(connfd, reply, strlen(reply)+1);
+            ret_val = write(connfd, reply, strlen(reply));
             return;
         }
         else
         {
             sprintf(reply,VR_REPLY_NOT_OK);
-            ret_val = write(connfd, reply, strlen(reply)+1);
+            ret_val = write(connfd, reply, strlen(reply));
             return;
         }
     }
@@ -282,12 +282,12 @@ void handle_set(int connfd,dict *kv_dict,skip_list* expiry_list,char* string)
         if((ret_val == VR_ERR_OK) || (ret_val = VR_ERR_EXIST))
         {
             sprintf(reply,VR_REPLY_OK);
-            ret_val = write(connfd, reply, strlen(reply)+1);
+            ret_val = write(connfd, reply, strlen(reply));
         }
         else
         {
             sprintf(reply,VR_REPLY_NOT_OK);
-            ret_val = write(connfd, reply, strlen(reply)+1);
+            ret_val = write(connfd, reply, strlen(reply));
         }
     }
 }
@@ -319,7 +319,7 @@ void handle_get(int connfd,dict *kv_dict,char* string)
     {
         //syntax error if key isn't there
         sprintf(reply,VR_REPLY_WRONG_ARG_SET);
-        ret_val = write(connfd, reply, strlen(reply)+1);
+        ret_val = write(connfd, reply, strlen(reply));
         return;
     }
     
@@ -328,7 +328,7 @@ void handle_get(int connfd,dict *kv_dict,char* string)
     if(next != NULL)
     {
         sprintf(reply,VR_REPLY_SYNTAX_ERROR);
-        ret_val = write(connfd, reply, strlen(reply)+1);
+        ret_val = write(connfd, reply, strlen(reply));
         return;
     }
     
@@ -336,7 +336,7 @@ void handle_get(int connfd,dict *kv_dict,char* string)
     {
         //syntax error if key isn't there
         sprintf(reply,VR_REPLY_WRONG_ARG_SET);
-        ret_val = write(connfd, reply, strlen(reply)+1);
+        ret_val = write(connfd, reply, strlen(reply));
         return;
     }
     
@@ -346,10 +346,10 @@ void handle_get(int connfd,dict *kv_dict,char* string)
     if(str)
     {
         if((expiry > 0) && (expiry < t))
-            sprintf(reply,VR_REPLY_NOT_FOUND);
+            ret_val = sprintf(reply,VR_REPLY_NOT_FOUND);
         else
-            sprintf(reply,VR_REPLY_STRING,str->len,str->len,str->string);
-        ret_val = write(connfd, reply, strlen(reply)+1);
+            ret_val = sprintf(reply,VR_REPLY_STRING,str->len,str->len,str->string);
+        ret_val = write(connfd, reply, ret_val );
     
         if(ret_val < 0)
         {
@@ -359,7 +359,7 @@ void handle_get(int connfd,dict *kv_dict,char* string)
     else
     {
         sprintf(reply,VR_REPLY_NOT_FOUND);
-        ret_val = write(connfd, reply, strlen(reply)+1);
+        ret_val = write(connfd, reply, strlen(reply));
     
         if(ret_val < 0)
         {
@@ -369,4 +369,4 @@ void handle_get(int connfd,dict *kv_dict,char* string)
     //printf("L = %d\n",kv_dict->len);
 }
 
-
+//TODO optimize with return value of printfs

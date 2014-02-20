@@ -2,7 +2,7 @@ import socket
 import time
 import conf
 
-NUM = 50000
+NUM = 10000
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 client_socket.connect(('localhost', conf.PORT))
@@ -33,11 +33,11 @@ while i < NUM:
 
     client_socket.send(command)
     reply = client_socket.recv(100)
-    recv_value = reply.split()[1]
-    reply = reply.strip()
+    #recv_value = reply.split()[1]
+    #reply = reply.strip()
 
-    if(recv_value != value):
-        raise AssertionError
+    #if(recv_value != value):
+    #    raise AssertionError
     i += 1
     
 stop = time.time()

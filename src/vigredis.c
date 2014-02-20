@@ -113,7 +113,7 @@ int main(int argc,char** argv)
                             VR_BUFFER_LEN);
                         
                         current_client->index += ret;
-                        if(current_client->buffer[current_client->index-1] == 
+                        if((current_client->index > 0) && current_client->buffer[current_client->index-1] == 
                             VR_END_CHAR)
                         {
                             client_handle(current_client,&kv_dict,&expiry_list);
