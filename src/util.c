@@ -16,7 +16,7 @@ double get_time_ms()
     double d;
 
     gettimeofday(&now, NULL);
-    d = now.tv_sec + ((double)now.tv_usec)/1000;
+    d = now.tv_sec + ((double)now.tv_usec)/1000/1000/1000;
     return d;
 }
 /* 

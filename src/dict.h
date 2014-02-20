@@ -7,6 +7,7 @@
 
 #include "stdint.h"
 #include "list.h"
+#include "skip_list.h"
 
 #define VR_DICT_INIT_SIZE 8
 #define VR_DICT_EXPAND_RATIO 2
@@ -37,6 +38,7 @@ void dict_print(dict *d);
 void dict_debug_print(dict *d);
 int dict_set_bit(dict *d,char* key,int klen,int n,char b);
 int dict_get_bit(dict *d,char* key,int klen,int n);
+void dict_delete_expired(dict *d,skip_list* sl);
 
 
 #endif

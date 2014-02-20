@@ -10,6 +10,7 @@
 #include "dict.h"
 #include "util.h"
 #include "string_def.h"
+#include "skip_list.h"
  
 
 /*
@@ -60,7 +61,7 @@ client_info* client_list_delete(client_list* l,client_info* node)
  * Handles data on connfd
  * Will read and parse the string, and reply appropriately
  */
-void client_handle(client_info* client,dict* kv_dict)
+void client_handle(client_info* client,dict* kv_dict,skip_list* expiry_list)
 {
     char *buffer;
     char buffer_copy[VR_MAX_MSG_LEN];
@@ -88,7 +89,7 @@ void client_handle(client_info* client,dict* kv_dict)
     }
     if(strcmp(command,"set") == 0)
     {
-        handle_set(client->fd,kv_dict,buffer_copy);
+        handle_set(client->fd,kv_dict,expiry_list,buffer_copy);
         return;
     }
     
@@ -114,7 +115,7 @@ void client_handle(client_info* client,dict* kv_dict)
  * Parses and handles set command
  * will parse string, and reply on connfd
  */
-void handle_set(int connfd,dict *kv_dict,char* string)
+void handle_set(int connfd,dict *kv_dict,skip_list* expiry_list,char* string)
 {
     int ret_val;
     char reply[VR_MAX_MSG_LEN];
@@ -224,6 +225,12 @@ void handle_set(int connfd,dict *kv_dict,char* string)
 
     //Add if key exists,
     //only VR_ERR_EXIST is the right return value 
+    if(expiry > 0)
+    {
+        //printf("expiry = %lf\n",expiry);
+        skip_list_insert(expiry_list,expiry,key,strlen(key));
+    }
+    
     if(flag_int == VR_FLAG_XX)
     {
 

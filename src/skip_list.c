@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <float.h>
+#include<string.h>
 
 /*
  * generates a level 
@@ -29,7 +30,7 @@ void skip_list_init(skip_list *sl)
     int i;
     sl->level = 1;
     sl->header = (skip_list_node*)malloc(sizeof(skip_list_node));
-    sl->header->next =  (skip_list_node**)malloc(VR_SKIP_LIST_MAX_NODE*sizeof(skip_list_node));
+    sl->header->next =  (skip_list_node**)malloc(VR_SKIP_LIST_MAX_NODE*sizeof(char*));
     for(i=0;i<VR_SKIP_LIST_MAX_NODE;i++)
         sl->header->next[i] = NULL;
 }
@@ -37,7 +38,7 @@ void skip_list_init(skip_list *sl)
 /*
  * Inserts an element, duplicates allowed
  */
-void skip_list_insert(skip_list *sl,double key)
+void skip_list_insert(skip_list *sl,double score,char* key,int klen)
 {
     int i;
     int v;
@@ -46,7 +47,7 @@ void skip_list_insert(skip_list *sl,double key)
 
     for(i=(sl->level-1); i >= 0 ; i--)
     {
-        while( (x->next[i] != NULL) && x->next[i]->score < key )
+        while( (x->next[i] != NULL) && x->next[i]->score < score )
             x = x->next[i];
         update[i] = x;
     }
@@ -58,11 +59,13 @@ void skip_list_insert(skip_list *sl,double key)
         for(i=(sl->level );i < v;i++)
             update[i]= sl->header;
         sl->level = v;
-
     }
     
     x = (skip_list_node*)malloc(sizeof(skip_list_node));
-    x->score = key;
+    x->score = score;
+    x->key = (char*)malloc(klen);
+    strncpy(x->key,key,klen);
+    x->klen = klen;
     x->next = (skip_list_node**)malloc(v*sizeof(char*));
 
     for(i=0;i < v;i++)
@@ -83,7 +86,7 @@ double skip_list_first(skip_list* sl)
     if(sl->header->next[0])
         return sl->header->next[0]->score;
     else
-        return -DBL_MAX;
+        return DBL_MAX;
 }
 
 int skip_list_empty(skip_list* sl)
@@ -91,20 +94,18 @@ int skip_list_empty(skip_list* sl)
     return (sl->header->next[0] == NULL);
 }
 
-double skip_list_pop(skip_list *sl)
+skip_list_node* skip_list_pop(skip_list *sl)
 {
     int i;
-    double d;
     skip_list_node* first = sl->header->next[0];
-    d = first->score;
     
+    //printf("pop\n");
     for(i=0;i<VR_SKIP_LIST_MAX_NODE;i++)
     {
         if(sl->header->next[i] == first )
             sl->header->next[i] = sl->header->next[0]->next[i];
     }
-    free(first);
-    return d;
+    return first;
 
 }
 
@@ -128,4 +129,20 @@ void skip_list_print(skip_list* sl)
         counter++;
     }
     printf("\n");
+}
+
+void skip_list_clear(skip_list* sl)
+{
+    skip_list_node* tmp;
+    while(!skip_list_empty(sl))
+    {
+        tmp = skip_list_pop(sl);
+        free(tmp->key);
+        free(tmp->next);
+        free(tmp);
+        
+    }
+    
+    free(sl->header->next);
+    free(sl->header);
 }

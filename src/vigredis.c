@@ -19,10 +19,14 @@ int main(int argc,char** argv)
     //dict responsible to hold all key value pairs
     dict kv_dict;
     
+    //list holding keys to expire, in increasing order of expity time
+    skip_list expiry_list;
+    
     struct timeval select_wait;
     select_wait.tv_sec = VR_SELECT_SEC;
     select_wait.tv_usec = VR_SELECT_USEC;
     struct timeval wait_copy;
+    
 
     int listenfd, connfd;
     int maxfd = 0;
@@ -38,6 +42,7 @@ int main(int argc,char** argv)
     // Initializations
     dict_init(&kv_dict,VR_TYPE_STRING);
     client_list_init(&clients);
+    skip_list_init(&expiry_list);
     
     
     FD_ZERO(&read_fds_copy);
@@ -68,6 +73,10 @@ int main(int argc,char** argv)
     
     while(1)
     {
+    
+        //maintainence
+        dict_delete_expired(&kv_dict,&expiry_list);
+        
         wait_copy = select_wait;
         read_fds_copy = read_fds;
         
@@ -107,7 +116,7 @@ int main(int argc,char** argv)
                         if(current_client->buffer[current_client->index-1] == 
                             VR_END_CHAR)
                         {
-                            client_handle(current_client,&kv_dict);
+                            client_handle(current_client,&kv_dict,&expiry_list);
                             current_client->index = 0;
                             bzero(current_client->buffer,VR_BUFFER_LEN);
                         }
@@ -136,6 +145,10 @@ int main(int argc,char** argv)
             current_client = clients.header;
             while(current_client)
                 current_client = client_list_delete(&clients,current_client);
+                
+            
+            
+            skip_list_clear(&expiry_list);
             dict_clear(&kv_dict);
             printf("\n----- Exiting, Bye ! -----\n");
             exit(0);

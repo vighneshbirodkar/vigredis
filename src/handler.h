@@ -22,9 +22,9 @@ typedef struct client_list
 
 void client_list_init(client_list *l);
 void client_list_add(client_list* l,int fd);
-void client_handle(client_info* client,dict* kv_dict);
+void client_handle(client_info* client,dict* kv_dict,skip_list* expiry_list);
 client_info* client_list_delete(client_list* l,client_info* node);
-void handle_set(int connfd,dict *kv_dict,char* string);
+void handle_set(int connfd,dict *kv_dict,skip_list* expiry_list,char* string);
 void handle_get(int connfd,dict *kv_dict,char* string);
 
 #endif

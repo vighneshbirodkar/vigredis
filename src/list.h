@@ -50,6 +50,7 @@ int list_add_int(list *l,char *key,int klen,int value,int flag,double expiry);
 int list_delete_int(list *l,char* key,int klen);
 int list_delete_string(list *l,char* key,int klen);
 int list_delete_object(list *l,char* key,int klen);
+int list_delete_object_ife(list *l,char* key,int klen, double time);
 void list_print(list *l);
 
 #endif

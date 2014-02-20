@@ -4,10 +4,12 @@
 
 #include "dict.h"
 #include "hash.h"
+#include "util.h"
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
 #include"vr_string.h"
+#include "skip_list.h"
 
 /*
  * Initialization
@@ -167,6 +169,33 @@ int dict_delete(dict *d,char *key,int klen)
 }
 
 /*
+ * Deletes a key from dict,only if it has expired
+ * time is assumed to be as given
+ * returns 
+ * VR_ERR_EXIST if key existed
+ * VR_NOT_EXIST if key didnt exist
+ */
+int dict_delete_ife(dict *d,char *key,int klen, double time)
+{
+    uint32_t hash = hash_string_32(key,klen);
+    uint32_t index = hash % d->size;
+    int ret_val;
+    
+    ret_val = list_delete_object_ife(&d->table[index],key,klen,time);
+    
+    if(ret_val == VR_ERR_EXIST)
+        d->len--;
+        
+    if(d->len < (d->size/VR_DICT_CONTRACT_RATIO))
+        dict_contract(d);
+    return ret_val;
+}
+
+
+
+
+
+/*
  * Increases size by VR_DICT_CONTRACT_RATIO times
  */
 void dict_expand(dict *d)
@@ -311,6 +340,29 @@ vr_object* dict_get(dict *d,char* key,int klen,double* expiry)
 
 }
 
+/*
+ * deleted keys from d whose time has expired
+ * keys are suumed to be stored in 'sl' in increasing order of expiry time
+ */
+void dict_delete_expired(dict *d,skip_list* sl)
+{
+    double time = get_time_ms();
+    skip_list_node* tmp;
+    
+    while(  (time > skip_list_first(sl) ))
+    {
+        //printf("time = %lf\n",time);
+        //printf("first = %lf\n",skip_list_first(sl));
+        tmp = skip_list_pop(sl);
+        dict_delete_ife(d,tmp->key,tmp->klen,time);
+
+            //printf("deleted %.*s\n",tmp->klen,tmp->key);
+        free(tmp->key);
+        free(tmp->next);
+        free(tmp);
+        
+    }
+}
 /*
  * deletes the dict, freeing all memory used
  */

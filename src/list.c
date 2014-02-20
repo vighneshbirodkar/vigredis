@@ -212,6 +212,60 @@ int list_delete_object(list *l,char* key,int klen)
 
 
 /*
+ * Deletes object with given key, if it has expred
+ * time is assumed to be as given
+ * returns 
+ * VR_ERR_EXIST - if object existed and was deleted
+ * VR_ERR_NOTEXIST - if key wasn't there or it hadn't expired
+ *
+ */
+int list_delete_object_ife(list *l,char* key,int klen, double time)
+{
+    list_node* tmp = l->root;
+    list_node* prev = NULL;
+    
+    while(tmp != NULL)
+    {
+        if((tmp->klen == klen) && (strncmp(tmp->key,key,klen)==0))
+            break;
+        prev = tmp;
+        tmp = tmp->next;
+    }
+    
+    if(tmp == NULL)
+        return VR_ERR_NOTEXIST;
+    
+    if(tmp->expiry < 0)
+        return VR_ERR_NOTEXIST;
+        
+    if(time > tmp->expiry )
+        return VR_ERR_NOTEXIST;
+        
+    //printf("deleted exp %.*s",klen,key);
+    
+    if(prev == NULL)
+        l->root = tmp->next;
+    else
+        prev->next = tmp->next;
+        
+    
+    if(l->type == VR_TYPE_STRING)
+        free(tmp->object.string.string);
+    
+    free(tmp->key);
+    free(tmp);
+    
+    l->len--;
+    return VR_ERR_EXIST;
+}
+
+
+
+
+
+
+
+/*
  * Prints a list, debugging purpose
  */
 void list_print(list *l)
