@@ -7,6 +7,7 @@
 #include "vr_string.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <float.h>
 
 /*
  * generates a level 
@@ -71,6 +72,40 @@ void skip_list_insert(skip_list *sl,double key)
     }
     
     
+}
+
+/*
+ * returns first element
+ * minimum value of double if list empty
+ */
+double skip_list_first(skip_list* sl)
+{
+    if(sl->header->next[0])
+        return sl->header->next[0]->score;
+    else
+        return -DBL_MAX;
+}
+
+int skip_list_empty(skip_list* sl)
+{
+    return (sl->header->next[0] == NULL);
+}
+
+double skip_list_pop(skip_list *sl)
+{
+    int i;
+    double d;
+    skip_list_node* first = sl->header->next[0];
+    d = first->score;
+    
+    for(i=0;i<VR_SKIP_LIST_MAX_NODE;i++)
+    {
+        if(sl->header->next[i] == first )
+            sl->header->next[i] = sl->header->next[0]->next[i];
+    }
+    free(first);
+    return d;
+
 }
 
 /*
