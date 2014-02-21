@@ -64,7 +64,7 @@ int dict_add_string(dict *d,char* key,int klen,char* value,int vlen,int flag,dou
  * gets bit at specified offset of key
  * if key doesnt exist, return 0
  */
-int dict_get_bit(dict *d,char* key,int klen,int n)
+int dict_get_bit(dict *d,char* key,int klen,int n,double* expiry)
 {
     list_node* tmp;
     uint32_t hash = hash_string_32(key,klen);
@@ -78,7 +78,10 @@ int dict_get_bit(dict *d,char* key,int klen,int n)
     tmp = list_find(&d->table[index],key,klen);
     
     if(tmp)
+    {
+        *expiry = tmp->expiry;
         return string_get_bit(&tmp->object.string,n);
+    }
     else
         return 0;
 }
@@ -88,9 +91,10 @@ int dict_get_bit(dict *d,char* key,int klen,int n)
  * if key doesnt exist, its added with all 0s, and bit is set
  */
 
-int dict_set_bit(dict *d,char* key,int klen,int n,char b)
+int dict_set_bit(dict *d,char* key,int klen,int n,char b,double* expiry)
 {
     list_node* tmp;
+    int ret;
     uint32_t hash = hash_string_32(key,klen);
     uint32_t index = hash % d->size;
     if(d->type != VR_TYPE_STRING)
@@ -102,14 +106,19 @@ int dict_set_bit(dict *d,char* key,int klen,int n,char b)
     tmp = list_find(&d->table[index],key,klen);
     
     if(tmp)
+    {
+        *expiry = tmp->expiry;
         return string_set_bit(&tmp->object.string,n,b);
+        
+    }
     else
     {
         vr_object obj;
         obj.string.string = NULL;
         obj.string.len = 0;
+        ret = string_set_bit(&obj.string,n,b);
         dict_add_object(d,key,klen,obj,VR_FLAG_NONE,-1);
-        return string_set_bit(&obj.string,n,b);
+        return ret;
         
     }
 }

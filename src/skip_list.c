@@ -102,8 +102,9 @@ skip_list_node* skip_list_pop(skip_list *sl)
     //printf("pop\n");
     for(i=0;i<VR_SKIP_LIST_MAX_NODE;i++)
     {
+        //printf("i = %d\n",i);
         if(sl->header->next[i] == first )
-            sl->header->next[i] = sl->header->next[0]->next[i];
+            sl->header->next[i] = first->next[0];
     }
     return first;
 

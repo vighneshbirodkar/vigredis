@@ -18,6 +18,12 @@
 #define VR_REPLY_STRING "$%d\n%.*s\r\n"
 //not found
 #define VR_REPLY_NOT_FOUND "$-1\r\n"
+//bit reply
+#define VR_REPLY_BIT ":%d\r\n"
+//bit offset wrong
+#define VR_REPLY_WRONG_OFFSET "-ERR bit offset is not an integer or out of range\r\n"
+//bit is bound of range
+#define VR_REPLY_WRONG_BIT "-ERR bit is not an integer or out of range\r\n"
 
 
 #endif

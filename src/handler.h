@@ -26,5 +26,7 @@ void client_handle(client_info* client,dict* kv_dict,skip_list* expiry_list);
 client_info* client_list_delete(client_list* l,client_info* node);
 void handle_set(int connfd,dict *kv_dict,skip_list* expiry_list,char* string);
 void handle_get(int connfd,dict *kv_dict,char* string);
+void handle_getbit(int connfd,dict *kv_dict,char* string);
+void handle_setbit(int connfd,dict *kv_dict,char* string);
 
 #endif

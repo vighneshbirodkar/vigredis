@@ -19,7 +19,6 @@ def test_set_get():
         
     server.send("get hello1" + nl)
     reply = server.recv(100)
-    print reply
     l,s = reply.split()
     l = l.strip()
     s = s.strip()
@@ -67,4 +66,65 @@ def test_set_get_expiry():
     else:
         assert False
         
+def test_setbit():
 
+    server.send("setbit key_of_a 1 1"+ nl)
+    reply = server.recv(100).strip()
+    
+    if reply == ':0':
+        pass
+    else:
+        assert False
+        
+    server.send("setbit key_of_a 2 1"+ nl)
+    reply = server.recv(100).strip()
+    
+    if reply == ':0':
+        pass
+    else:
+        assert False
+        
+    server.send("setbit key_of_a 7 1"+ nl)
+    reply = server.recv(100).strip()
+    
+    if reply == ':0':
+        pass
+    else:
+        assert False
+        
+    server.send("get key_of_a"+ nl)
+    reply = server.recv(100)
+    l,s = reply.split()
+    l = l.strip()
+    s = s.strip()
+    if l == '$1':
+        pass
+    else:
+        assert False
+        
+    if s == 'a':
+        pass
+    else:
+        assert False
+        
+def test_getbit():
+    server.send("set hello3 world3" + nl)
+    reply = server.recv(100).strip()
+
+    
+    if reply == '+OK':
+        pass
+    else :
+        assert False
+    
+    binString = ''.join(format(ord(x), 'b').zfill(8) for x in 'world3')
+    for i in range(len(binString)):
+        command = 'getbit hello3 %d' % i
+        server.send(command + nl)
+        reply = server.recv(100).strip()
+        ans = ':%s' % binString[i]
+        
+        if reply == ans :
+            pass
+        else:
+            assert False

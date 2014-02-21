@@ -36,8 +36,8 @@ void dict_expand(dict *d);
 void dict_contract(dict *d);
 void dict_print(dict *d);
 void dict_debug_print(dict *d);
-int dict_set_bit(dict *d,char* key,int klen,int n,char b);
-int dict_get_bit(dict *d,char* key,int klen,int n);
+int dict_set_bit(dict *d,char* key,int klen,int n,char b,double* expity);
+int dict_get_bit(dict *d,char* key,int klen,int n,double* expiry);
 void dict_delete_expired(dict *d,skip_list* sl);
 
 

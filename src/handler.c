@@ -99,6 +99,17 @@ void client_handle(client_info* client,dict* kv_dict,skip_list* expiry_list)
         return;
     }
     
+    if(strcmp(command,"getbit") == 0)
+    {
+        handle_getbit(client->fd,kv_dict,buffer_copy);
+        return;
+    }
+    if(strcmp(command,"setbit") == 0)
+    {
+        handle_setbit(client->fd,kv_dict,buffer_copy);
+        return;
+    }
+    
     //Command is not known
     ret_val = sprintf(reply,VR_REPLY_UNKNOWN_COMMAND,command);
 
@@ -369,4 +380,178 @@ void handle_get(int connfd,dict *kv_dict,char* string)
     //printf("L = %d\n",kv_dict->len);
 }
 
-//TODO optimize with return value of printfs
+
+void handle_getbit(int connfd,dict *kv_dict,char* string)
+{
+    int ret_val;
+    char reply[VR_MAX_MSG_LEN];
+    char* command,*key,*next;
+    char* bit;
+    int bit_index;
+    int bit_val;
+    double expiry,t;
+    
+    
+    rstrip(string);
+    command = strtok(string," ");
+    str_lower(command);
+    
+    
+    if(strcmp(command,"getbit"))
+    {
+        perror("Fatal error, command to getbit is not getbit");
+    }
+    
+    //Parse Key
+    key = strtok(NULL," ");
+    if(key == NULL)
+    {
+        //syntax error if key isn't there
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    bit = strtok(NULL," ");
+    if(bit == NULL)
+    {
+        //syntax error if bit isn't there
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    next = strtok(NULL," ");
+    //Extra tokens
+    if(next != NULL)
+    {
+        ret_val = sprintf(reply,VR_REPLY_SYNTAX_ERROR);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    if(isint(bit))
+        bit_index = atoi(bit);
+    else
+    {
+        ret_val = sprintf(reply,VR_REPLY_WRONG_OFFSET);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    bit_val = dict_get_bit(kv_dict,key,strlen(key),bit_index,&expiry);
+    t = get_time_ms();
+    
+    //key expired, as good as key not present
+    if((expiry > 0) && (expiry < t))
+        bit_val = 0;
+
+    ret_val = sprintf(reply,VR_REPLY_BIT,bit_val);
+    ret_val = write(connfd, reply, ret_val );
+
+    if(ret_val < 0)
+    {
+        perror("Error Writing");
+    }
+    //printf("L = %d\n",kv_dict->len);
+}
+
+void handle_setbit(int connfd,dict *kv_dict,char* string)
+{
+    
+    int ret_val;
+    char reply[VR_MAX_MSG_LEN];
+    char* command,*key,*next;
+    char* bit;
+    char* bit_index_str;
+    int bit_index;
+    int bit_val;
+    double expiry,t;
+    
+    
+    rstrip(string);
+    command = strtok(string," ");
+    str_lower(command);
+    
+    if(strcmp(command,"setbit"))
+    {
+        perror("Fatal error, command to getbit is not getbit");
+    }
+    
+    //Parse Key
+    key = strtok(NULL," ");
+    if(key == NULL)
+    {
+        //syntax error if key isn't there
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    bit_index_str = strtok(NULL," ");
+    if(bit_index_str == NULL)
+    {
+        //syntax error if bit isn't there
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    bit = strtok(NULL," ");
+    if(bit == NULL)
+    {
+        //syntax error if bit isn't there
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    
+    
+    next = strtok(NULL," ");
+    //Extra tokens
+    if(next != NULL)
+    {
+        ret_val = sprintf(reply,VR_REPLY_SYNTAX_ERROR);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    if((bit[0] == '1') || (bit[0] == '0'))
+        bit_val = atoi(bit);
+    else
+    {
+        ret_val = sprintf(reply,VR_REPLY_WRONG_BIT);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    if(isint(bit_index_str))
+        bit_index = atoi(bit_index_str);
+    else
+    {
+        ret_val = sprintf(reply,VR_REPLY_WRONG_OFFSET);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    expiry = -1;
+    bit_val = dict_set_bit(kv_dict,key,strlen(key),bit_index,bit_val,&expiry);
+    t = get_time_ms();
+    
+    //key expired, as good as key not present
+    if((expiry > 0) && (expiry < t))
+        bit_val = 0;
+
+    ret_val = sprintf(reply,VR_REPLY_BIT,bit_val);
+    ret_val = write(connfd, reply, ret_val );
+
+    if(ret_val < 0)
+    {
+        perror("Error Writing");
+    }
+    //printf("L = %d\n",kv_dict->len);
+}
+
+
+
