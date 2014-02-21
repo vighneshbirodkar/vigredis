@@ -5,7 +5,7 @@ import time
 
 NUM = 10000
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-nl = chr(10)
+nl = '\r\n'
 server.connect(('localhost', conf.PORT))
 
 def test_set_get():
