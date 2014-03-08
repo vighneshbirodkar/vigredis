@@ -28,6 +28,7 @@ typedef struct dict
 void dict_init(dict* d,char type);
 int dict_add_string(dict *d,char* key,int klen,char* value,int vlen,int flag,double expiry);
 int dict_add_object(dict *d,char *key,int klen,vr_object object,int flag,double expiry);
+int dict_add_double(dict *d,char *key,int klen,double value,int flag,double expiry);
 int dict_delete(dict *d,char *key,int klen);
 vr_object* dict_get(dict *d,char* key,int klen,double* expiry);
 vr_string* dict_get_string(dict* d,char* key,int klen,double * expiry);

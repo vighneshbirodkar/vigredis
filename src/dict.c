@@ -28,9 +28,9 @@ void dict_init(dict* d,char type)
 /*
  * adds an int to dict,see dic_add_object
  */
-int dict_add_int(dict *d,char *key,int klen,int value,int flag,double expiry)
+int dict_add_double(dict *d,char *key,int klen,double value,int flag,double expiry)
 {
-    if(d->type != VR_TYPE_INT)
+    if(d->type != VR_TYPE_DOUBLE)
     {
         printf("Incompatible Dict Addition\n");
         return VR_ERR_FATAL;
@@ -308,8 +308,8 @@ void dict_print(dict *d)
         {
             if(d->type == VR_TYPE_STRING)
                 printf("%.*s : %.*s\n", (int)tmp->klen, tmp->key , (int)tmp->object.string.len, tmp->object.string.string);
-            if(d->type == VR_TYPE_INT)
-                printf("%.*s : %d\n", (int)tmp->klen, tmp->key , (int)tmp->object.value);
+            if(d->type == VR_TYPE_DOUBLE)
+                printf("%.*s : %lf\n", (int)tmp->klen, tmp->key , tmp->object.value);
             tmp = tmp->next;
         }
     }

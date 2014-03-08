@@ -9,7 +9,6 @@
 typedef struct skip_list_node
 {
     double score;
-    struct vr_string string;
     struct skip_list_node** next;
     char* key;
     int klen;
@@ -23,6 +22,7 @@ typedef struct skip_list
 
 void skip_list_init(skip_list *sl);
 void skip_list_insert(skip_list *sl,double score,char* key,int klen);
+void skip_list_delete_with_key(skip_list *sl,double score,char* key,int klen);
 int random_level();
 void skip_list_print(skip_list* sl);
 double skip_list_first(skip_list* sl);

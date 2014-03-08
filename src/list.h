@@ -24,7 +24,9 @@
 #define VR_TYPE_STRING 1
 
 //The node is of type int
-#define VR_TYPE_INT 2
+#define VR_TYPE_DOUBLE 2
+
+
 
 typedef struct list_node
 {
@@ -46,7 +48,7 @@ void list_init(list *l,char type);
 list_node* list_find(list *l,char* key,int klen);
 int list_add_object(list* l,char* key,int klen,vr_object object,int flag,double expiry);
 int list_add_string(list* l,char* key,int klen,char* value,int vlen,int flag,double expiry);
-int list_add_int(list *l,char *key,int klen,int value,int flag,double expiry);
+//int list_add_int(list *l,char *key,int klen,int value,int flag,double expiry);
 int list_delete_int(list *l,char* key,int klen);
 int list_delete_string(list *l,char* key,int klen);
 int list_delete_object(list *l,char* key,int klen);

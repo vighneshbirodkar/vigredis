@@ -66,9 +66,10 @@ int list_add_string(list* l,char* key,int klen,char* value,int vlen,int flag,dou
  * VR_ERR_EXIST - if key existed
  * VR_ERR_NOTEXIST - if key did not exist and flag = VR_FLAG_XX
  */
+ 
 int list_add_int(list *l,char *key,int klen,int value,int flag,double expiry)
 {
-    if(l->type != VR_TYPE_INT)
+    if(l->type != VR_TYPE_DOUBLE)
     {
         printf("Incompatible List Addition\n");
         return VR_ERR_FATAL;
@@ -278,8 +279,8 @@ void list_print(list *l)
     {
         if(l->type == VR_TYPE_STRING )
             printf("%.*s : %.*s\n", (int)tmp->klen, tmp->key , (int)tmp->object.string.len, tmp->object.string.string);
-        if(l->type == VR_TYPE_INT)
-            printf("%.*s : %d\n", (int)tmp->klen, tmp->key , (int)tmp->object.value);
+        //if(l->type == VR_TYPE_INT)
+        //    printf("%.*s : %d\n", (int)tmp->klen, tmp->key , (int)tmp->object.value);
         tmp = tmp->next;
     }
 }

@@ -11,7 +11,7 @@
  
 typedef union vr_object
 {
-    int value;
+    double value;
     struct vr_string string;
     
 } vr_object;

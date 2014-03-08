@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <float.h>
 #include<string.h>
+#include "util.h"
 
 /*
  * generates a level 
@@ -78,6 +79,58 @@ void skip_list_insert(skip_list *sl,double score,char* key,int klen)
 }
 
 /*
+ *
+ */
+ 
+void skip_list_delete_with_key(skip_list *sl,double score,char* key,int klen)
+{
+    skip_list_node* update[VR_SKIP_LIST_MAX_NODE];
+    skip_list_node* x = sl->header;
+    int i;
+    
+    for(i=(sl->level-1); i >= 0 ; i--)
+    {
+        
+        printf("i = %d\n",i);
+        while( ( x->next[i] != NULL) && (x->next[i]->score < score) )
+            x = x->next[i];
+        update[i] = x;
+    }
+    printf("out\n");
+    x = x->next[0];
+    if( x == NULL)
+    {
+        printf("Fatal : key not found\n");
+        return;
+    }
+    
+    while( (x->next[0] != NULL) && VR_EQ(x->score,score) && (x->klen != klen) && ( strncmp(x->key,key,klen) != 0) )
+    {
+        x = x->next[0];
+    }
+    
+    if( (x->klen == klen) &&  (strncmp(x->key,key,klen) == 0) )
+    {
+        for(i=0;i < sl->level;i++)
+        {
+            if( update[i]->next[i] != x)
+                break;
+            update[i]->next[i] = x->next[i];
+        }
+        free(x->key);
+        free(x->next);
+        free(x);
+    
+        while( (sl->level > 0) && (sl->header->next[sl->level] == NULL) )
+        {
+            sl->level--;
+        }
+    }
+    else
+        printf("Fatal : key not found\n");
+}
+
+/*
  * returns first element
  * minimum value of double if list empty
  */
@@ -123,9 +176,9 @@ void skip_list_print(skip_list* sl)
     {
         trunc = (int)tmp->score;
         if(trunc == tmp->score)
-            printf("%d --> %d\n",counter,trunc);
+            printf("%d) %d , %.*s \n",counter,trunc,tmp->klen,tmp->key);
         else
-            printf("%d --> %lf\n",counter,tmp->score);
+            printf("%d) %lf , %.*s \n",counter,tmp->score,tmp->klen,tmp->key);
         tmp = tmp->next[0];
         counter++;
     }
