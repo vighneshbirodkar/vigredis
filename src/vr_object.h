@@ -12,6 +12,7 @@
 typedef union vr_object
 {
     double value;
+    dict obj_dict;
     struct vr_string string;
     
 } vr_object;

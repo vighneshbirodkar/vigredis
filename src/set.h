@@ -19,6 +19,7 @@ typedef struct set
 
 void set_init(set *s);
 void set_print(set* s);
+void set_clear(set *s);
 void set_add(set *s,char* key,int klen,double score);
 
 #endif

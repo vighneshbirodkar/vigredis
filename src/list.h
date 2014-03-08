@@ -26,6 +26,9 @@
 //The node is of type int
 #define VR_TYPE_DOUBLE 2
 
+//A dictionary of sets
+#define VR_TYPE_SET 3
+
 
 
 typedef struct list_node

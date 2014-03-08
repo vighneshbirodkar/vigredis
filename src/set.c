@@ -22,6 +22,7 @@ void set_add(set *s,char* key,int klen,double score)
     if( obj == NULL)
     {
         ret = dict_add_double(&s->set_dict,key,klen,score,VR_FLAG_NONE,-1);
+        skip_list_insert(&s->set_list,score,key,klen);
         if(ret != VR_ERR_OK)
             printf("Fatal : Key which is not supposed to exists, does exist\n");
     }
@@ -29,6 +30,7 @@ void set_add(set *s,char* key,int klen,double score)
     {
         skip_list_delete_with_key(&s->set_list,obj->value,key,klen);
         ret = dict_add_double(&s->set_dict,key,klen,score,VR_FLAG_NONE,-1);
+        skip_list_insert(&s->set_list,score,key,klen);
         if(ret != VR_ERR_EXIST)
             printf("Fatal : Key which is supposed to exist, does not exist\n");
     }
@@ -37,6 +39,12 @@ void set_add(set *s,char* key,int klen,double score)
 void set_print(set* s)
 {
     skip_list_print(&s->set_list);
+}
+
+void set_clear(set *s)
+{
+    dict_clear(&s->set_dict);
+    skip_list_clear(&s->set_list);
 }
 
 
