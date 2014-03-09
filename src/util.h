@@ -13,5 +13,6 @@ void str_lower( char* s );
 void rstrip(char* s);
 int isint(char* s);
 double get_time_ms();
+int isdouble(char *s);
 
 #endif

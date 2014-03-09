@@ -6,9 +6,10 @@
 #ifndef __SET_H__
 #define __SET_H__
 
-#include"set.h"
-#include "dict.h"
+
 #include"skip_list.h"
+#include "dict.h"
+
 
 typedef struct set
 {
@@ -20,6 +21,6 @@ typedef struct set
 void set_init(set *s);
 void set_print(set* s);
 void set_clear(set *s);
-void set_add(set *s,char* key,int klen,double score);
+int set_add(set *s,char* key,int klen,double score);
 
 #endif

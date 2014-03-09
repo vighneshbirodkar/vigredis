@@ -86,3 +86,16 @@ int isint(char *s)
     }
     return 1;
 }
+
+
+int isdouble(char *s)
+{
+    int i=0;
+    while(s[i])
+    {
+        if(! (isdigit(s[i]) || (s[i] == '.') || (s[i] == '-') ) )
+            return 0;
+        i++;
+    }
+    return 1;
+}

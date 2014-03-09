@@ -22,6 +22,9 @@ int main(int argc,char** argv)
     //list holding keys to expire, in increasing order of expity time
     skip_list expiry_list;
     
+    //dict responsible for mapping set names to sets
+    dict set_dict;
+    
     struct timeval select_wait;
     select_wait.tv_sec = VR_SELECT_SEC;
     select_wait.tv_usec = VR_SELECT_USEC;
@@ -43,6 +46,7 @@ int main(int argc,char** argv)
     dict_init(&kv_dict,VR_TYPE_STRING);
     client_list_init(&clients);
     skip_list_init(&expiry_list);
+    dict_init(&set_dict,VR_TYPE_SET);
     
     
     FD_ZERO(&read_fds_copy);
@@ -120,7 +124,7 @@ int main(int argc,char** argv)
                             VR_END_CHAR2) 
                             )
                         {
-                            client_handle(current_client,&kv_dict,&expiry_list);
+                            client_handle(current_client,&kv_dict,&expiry_list,&set_dict);
                             current_client->index = 0;
                             bzero(current_client->buffer,VR_BUFFER_LEN);
                         }
@@ -150,8 +154,7 @@ int main(int argc,char** argv)
             while(current_client)
                 current_client = client_list_delete(&clients,current_client);
                 
-            
-            
+            dict_clear(&set_dict);
             skip_list_clear(&expiry_list);
             dict_clear(&kv_dict);
             printf("\n----- Exiting, Bye ! -----\n");

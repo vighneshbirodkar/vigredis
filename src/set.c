@@ -11,7 +11,7 @@ void set_init(set *s)
     s->len = 0;
 }
 
-void set_add(set *s,char* key,int klen,double score)
+int set_add(set *s,char* key,int klen,double score)
 {
     int ret;
     double exp;
@@ -34,6 +34,7 @@ void set_add(set *s,char* key,int klen,double score)
         if(ret != VR_ERR_EXIST)
             printf("Fatal : Key which is supposed to exist, does not exist\n");
     }
+    return ret;
 }
 
 void set_print(set* s)

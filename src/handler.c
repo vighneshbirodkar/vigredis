@@ -11,6 +11,7 @@
 #include "util.h"
 #include "string_def.h"
 #include "skip_list.h"
+#include "set.h"
  
 
 /*
@@ -61,7 +62,7 @@ client_info* client_list_delete(client_list* l,client_info* node)
  * Handles data on connfd
  * Will read and parse the string, and reply appropriately
  */
-void client_handle(client_info* client,dict* kv_dict,skip_list* expiry_list)
+void client_handle(client_info* client,dict* kv_dict,skip_list* expiry_list,dict* set_dict)
 {
     char *buffer;
     char buffer_copy[VR_MAX_MSG_LEN];
@@ -107,6 +108,12 @@ void client_handle(client_info* client,dict* kv_dict,skip_list* expiry_list)
     if(strcmp(command,"setbit") == 0)
     {
         handle_setbit(client->fd,kv_dict,buffer_copy);
+        return;
+    }
+    
+    if(strcmp(command,"zadd") == 0)
+    {
+        handle_zadd(client->fd,set_dict,buffer_copy);
         return;
     }
     
@@ -553,5 +560,113 @@ void handle_setbit(int connfd,dict *kv_dict,char* string)
     //printf("L = %d\n",kv_dict->len);
 }
 
+void handle_zadd(int connfd,dict *set_dict,char* string)
+{
+    
+    int ret_val;
+    char reply[VR_MAX_MSG_LEN];
+    char* command,*set_str,*score,*member,*next;
+    double score_val,exp;
+    vr_object *obj_ptr;
+    vr_object obj;
+    set* set_ptr;
+    int exist;
+
+    
+    
+    rstrip(string);
+    command = strtok(string," ");
+    str_lower(command);
+    
+    if(strcmp(command,"zadd"))
+    {
+        perror("Fatal error, command to zadd is not zadd");
+    }
+    
+    //Parse Key
+    set_str = strtok(NULL," ");
+    if(set_str == NULL)
+    {
+        //syntax error if key isn't there
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    score = strtok(NULL," ");
+    if(score == NULL)
+    {
+        //syntax error if bit isn't there
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    member = strtok(NULL," ");
+    if(member == NULL)
+    {
+        //syntax error if bit isn't there
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    
+    next = strtok(NULL," ");
+    //Extra tokens
+    if(next != NULL)
+    {
+        ret_val = sprintf(reply,VR_REPLY_SYNTAX_ERROR);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+     
+    if(isdouble(score))
+        score_val = atof(score);
+    else
+    {
+        ret_val = sprintf(reply,VR_REPLY_NOT_FLOAT);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    obj_ptr = dict_get(set_dict,set_str,strlen(set_str),&exp);
+    if( obj_ptr == NULL )
+    {
+        //needs to be malloced
+        //decalring a set variable would make it just local to the function
+        set_ptr = (set*)malloc(sizeof(set));
+        obj.obj_set = set_ptr;
+        set_init(set_ptr);
+        
+        set_add(set_ptr,member,strlen(member),score_val);
+        dict_add_object(set_dict,set_str,strlen(set_str),obj,VR_FLAG_NONE,-1);
+        
+        ret_val = sprintf(reply,VR_REPLY_BIT,1);
+        ret_val = write(connfd, reply, ret_val );
+        
+    }
+    else
+    {
+        set_ptr = obj_ptr->obj_set;
+        exist = set_add(set_ptr,member,strlen(member),score_val);
+        
+        ret_val = -1;
+        if(exist == VR_ERR_OK)
+            ret_val = sprintf(reply,VR_REPLY_BIT,1);
+        if(exist == VR_ERR_EXIST)
+            ret_val = sprintf(reply,VR_REPLY_BIT,0);
+            
+        if(ret_val == -1)
+        {
+            perror("Fatal : Set Operation Error\n");
+        }
+        else
+            ret_val = write(connfd, reply , ret_val);
+        
+    }
+    //dict_print(set_dict);
+    //printf("Add %lf , %.*s to set %.*s\n",score_val,(int)strlen(member),member,(int)strlen(set_str),set_str);
+}
 
 

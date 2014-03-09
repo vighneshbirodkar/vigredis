@@ -14,7 +14,7 @@
 #define VR_DICT_CONTRACT_RATIO 10
 
 
-typedef struct dict 
+typedef struct dict_
 {
     //Number of elements in dict
     uint32_t len;

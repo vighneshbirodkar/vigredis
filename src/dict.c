@@ -10,6 +10,7 @@
 #include<string.h>
 #include"vr_string.h"
 #include "skip_list.h"
+#include "set.h"
 
 /*
  * Initialization
@@ -310,6 +311,12 @@ void dict_print(dict *d)
                 printf("%.*s : %.*s\n", (int)tmp->klen, tmp->key , (int)tmp->object.string.len, tmp->object.string.string);
             if(d->type == VR_TYPE_DOUBLE)
                 printf("%.*s : %lf\n", (int)tmp->klen, tmp->key , tmp->object.value);
+            if(d->type == VR_TYPE_SET)
+            {
+                printf("SET - %.*s\n",tmp->klen,tmp->key);
+                printf("-------------\n");
+                set_print(tmp->object.obj_set);
+            }
             tmp = tmp->next;
         }
     }
@@ -393,6 +400,11 @@ void dict_clear(dict *d)
             if(d->type == VR_TYPE_STRING)
             {
                 free(tmp->object.string.string);
+            }
+            if(d->type == VR_TYPE_SET)
+            {
+                set_clear(tmp->object.obj_set);
+                free(tmp->object.obj_set);
             }
             free(tmp);
         }

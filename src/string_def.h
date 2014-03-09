@@ -24,6 +24,8 @@
 #define VR_REPLY_WRONG_OFFSET "-ERR bit offset is not an integer or out of range\r\n"
 //bit is bound of range
 #define VR_REPLY_WRONG_BIT "-ERR bit is not an integer or out of range\r\n"
+//value not a float
+#define VR_REPLY_NOT_FLOAT "-ERR score is not a float\r\n"
 
 
 #endif

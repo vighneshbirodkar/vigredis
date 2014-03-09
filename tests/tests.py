@@ -128,3 +128,22 @@ def test_getbit():
             pass
         else:
             assert False
+
+def test_zadd():
+    
+    server.send("zadd seta -3.5 a" + nl)
+    
+    reply = server.recv(100).strip()
+    
+    if reply == ':1':
+        pass
+    else :
+        assert False
+        
+    server.send("zadd seta -4.5 a" + nl)
+
+    if reply == ':1':
+        pass
+    else :
+        assert False
+

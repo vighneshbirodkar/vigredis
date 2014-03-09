@@ -91,12 +91,12 @@ void skip_list_delete_with_key(skip_list *sl,double score,char* key,int klen)
     for(i=(sl->level-1); i >= 0 ; i--)
     {
         
-        printf("i = %d\n",i);
+        //printf("i = %d\n",i);
         while( ( x->next[i] != NULL) && (x->next[i]->score < score) )
             x = x->next[i];
         update[i] = x;
     }
-    printf("out\n");
+    //printf("out\n");
     x = x->next[0];
     if( x == NULL)
     {
