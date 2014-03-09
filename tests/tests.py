@@ -132,7 +132,6 @@ def test_getbit():
 def test_zadd():
     
     server.send("zadd seta -3.5 a" + nl)
-    
     reply = server.recv(100).strip()
     
     if reply == ':1':
@@ -141,9 +140,46 @@ def test_zadd():
         assert False
         
     server.send("zadd seta -4.5 a" + nl)
+    reply = server.recv(100).strip()
 
-    if reply == ':1':
+    if reply == ':0':
         pass
     else :
         assert False
 
+def test_zcard():
+
+    server.send("zadd setb -3.5 a" + nl)
+    reply = server.recv(100)
+    server.send("zadd setb 14 b" + nl)
+    reply = server.recv(100)
+    server.send("zadd setb 2.8 c" + nl)
+    reply = server.recv(100)
+    server.send("zadd setb 25 d" + nl)
+    reply = server.recv(100)
+    
+    server.send("zadd setc -3.5 a" + nl)
+    reply = server.recv(100)
+    server.send("zadd setc 53.5 b" + nl)
+    reply = server.recv(100)
+    server.send("zadd setc 13.5 c" + nl)
+    reply = server.recv(100)
+    server.send("zadd setc 100 a" + nl)
+    reply = server.recv(100)
+    
+    server.send('zcard setb' + nl)
+    reply = server.recv(100).strip()
+    
+    print reply
+    if reply == ':4':
+        pass
+    else :
+        assert False
+        
+    server.send('zcard setc' + nl)
+    reply = server.recv(100).strip()
+    if reply == ':3':
+        pass
+    else :
+        assert False
+    

@@ -135,6 +135,7 @@ int main(int argc,char** argv)
                             read_fds_copy = read_fds;
                             current_client = client_list_delete(&clients,
                             current_client);
+                            printf("Client Disconnected\n");
                             continue;
                         }
                         //client_handle(i,&kv_dict);

@@ -29,5 +29,6 @@ void handle_get(int connfd,dict *kv_dict,char* string);
 void handle_getbit(int connfd,dict *kv_dict,char* string);
 void handle_setbit(int connfd,dict *kv_dict,char* string);
 void handle_zadd(int connfd,dict *set_dict,char* string);
+void handle_zcard(int connfd,dict *set_dict,char* string);
 
 #endif

@@ -98,6 +98,9 @@ void skip_list_delete_with_key(skip_list *sl,double score,char* key,int klen)
     }
     //printf("out\n");
     x = x->next[0];
+    
+    //printf("SL : key = %.*s\n",klen,key);
+    
     if( x == NULL)
     {
         printf("Fatal : key not found\n");

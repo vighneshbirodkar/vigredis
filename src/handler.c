@@ -117,6 +117,11 @@ void client_handle(client_info* client,dict* kv_dict,skip_list* expiry_list,dict
         return;
     }
     
+    if(strcmp(command,"zcard") == 0)
+    {
+        handle_zcard(client->fd,set_dict,buffer_copy);
+        return;
+    }
     //Command is not known
     ret_val = sprintf(reply,VR_REPLY_UNKNOWN_COMMAND,command);
 
@@ -664,6 +669,62 @@ void handle_zadd(int connfd,dict *set_dict,char* string)
         else
             ret_val = write(connfd, reply , ret_val);
         
+    }
+    //dict_print(set_dict);
+    //printf("Add %lf , %.*s to set %.*s\n",score_val,(int)strlen(member),member,(int)strlen(set_str),set_str);
+}
+
+
+void handle_zcard(int connfd,dict *set_dict,char* string)
+{
+    
+    int ret_val;
+    char reply[VR_MAX_MSG_LEN];
+    char* command,*set_str,*next;
+    double exp;
+    vr_object *obj_ptr;
+    
+    rstrip(string);
+    command = strtok(string," ");
+    str_lower(command);
+    
+    if(strcmp(command,"zcard"))
+    {
+        perror("Fatal error, command to zcard is not zcard");
+    }
+    
+    //Parse Key
+    set_str = strtok(NULL," ");
+    if(set_str == NULL)
+    {
+        //syntax error if key isn't there
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    next = strtok(NULL," ");
+    //Extra tokens
+    if(next != NULL)
+    {
+        ret_val = sprintf(reply,VR_REPLY_SYNTAX_ERROR);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+     
+
+    
+    obj_ptr = dict_get(set_dict,set_str,strlen(set_str),&exp);
+    if( obj_ptr == NULL )
+    {
+        ret_val = sprintf(reply,VR_REPLY_BIT,0);
+        ret_val = write(connfd, reply, ret_val );
+        
+    }
+    else
+    {
+        ret_val = sprintf(reply,VR_REPLY_BIT,obj_ptr->obj_set->len);
+        ret_val = write(connfd, reply, ret_val );
     }
     //dict_print(set_dict);
     //printf("Add %lf , %.*s to set %.*s\n",score_val,(int)strlen(member),member,(int)strlen(set_str),set_str);

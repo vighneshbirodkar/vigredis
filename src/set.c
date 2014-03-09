@@ -3,6 +3,7 @@
 #include"skip_list.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "util.h"
 
 void set_init(set *s)
 {
@@ -25,9 +26,13 @@ int set_add(set *s,char* key,int klen,double score)
         skip_list_insert(&s->set_list,score,key,klen);
         if(ret != VR_ERR_OK)
             printf("Fatal : Key which is not supposed to exists, does exist\n");
+        s->len = s->len + 1;
+        //printf("set len = %d value = %lf\n",s->len,score);
     }
     else
     {
+        if(VR_EQ(score,obj->value))
+            return VR_ERR_EXIST;
         skip_list_delete_with_key(&s->set_list,obj->value,key,klen);
         ret = dict_add_double(&s->set_dict,key,klen,score,VR_FLAG_NONE,-1);
         skip_list_insert(&s->set_list,score,key,klen);

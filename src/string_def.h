@@ -15,7 +15,7 @@
 //Mostly returned when key noy found
 #define VR_REPLY_NOT_OK "$-1\n"
 //reply for a string
-#define VR_REPLY_STRING "$%d\n%.*s\r\n"
+#define VR_REPLY_STRING "$%d\r\n%.*s\r\n"
 //not found
 #define VR_REPLY_NOT_FOUND "$-1\r\n"
 //bit reply
