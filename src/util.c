@@ -88,6 +88,21 @@ int isint(char *s)
 }
 
 
+/*
+ * checks if string is positive or negative int
+ */
+int isint_neg(char *s)
+{
+    int i=0;
+    while(s[i])
+    {
+        if(!(isdigit(s[i]) || s[i] == '-'))
+            return 0;
+        i++;
+    }
+    return 1;
+}
+
 int isdouble(char *s)
 {
     int i=0;

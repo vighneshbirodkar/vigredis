@@ -78,8 +78,30 @@ void skip_list_insert(skip_list *sl,double score,char* key,int klen)
     
 }
 
+
+
+/*
+ *point to the first node with value greater than or equal to score
+ */
+skip_list_node* skip_list_point(skip_list* sl,double score)
+{
+    int i;
+    skip_list_node* x  = sl->header;
+    for(i=(sl->level-1); i >= 0 ; i--)
+    {
+        
+        //printf("i = %d\n",i);
+        while( ( x->next[i] != NULL) && (x->next[i]->score < score) )
+            x = x->next[i];
+    }
+    //printf("out\n");
+    x = x->next[0];
+    return x;
+}
+
 /*
  *
+ * Deletes the element with the epcified score and key
  */
  
 void skip_list_delete_with_key(skip_list *sl,double score,char* key,int klen)

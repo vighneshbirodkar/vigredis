@@ -7,7 +7,7 @@
 //Command isn't known
 #define VR_REPLY_UNKNOWN_COMMAND "-ERR unknown command '%s'\r\n"
 //Wrong number of arguments
-#define VR_REPLY_WRONG_ARG_SET "-ERR wrong number of arguments for 'set' command\r\n"
+#define VR_REPLY_WRONG_ARG_SET "-ERR wrong number of arguments for '%s' command\r\n"
 //Some sort of error parsing
 #define VR_REPLY_SYNTAX_ERROR "-Err syntax error\r\n"
 //Aal eez well
@@ -25,7 +25,11 @@
 //bit is bound of range
 #define VR_REPLY_WRONG_BIT "-ERR bit is not an integer or out of range\r\n"
 //value not a float
-#define VR_REPLY_NOT_FLOAT "-ERR score is not a float\r\n"
+#define VR_REPLY_NOT_FLOAT "-ERR value is not a float\r\n"
+//value not an int
+#define VR_REPLY_NOT_INT "-ERR value is not an int\r\n"
+//array size
+#define VR_REPLY_ARRAY_SIZE "*%d\r\n"
 
 
 #endif

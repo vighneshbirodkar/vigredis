@@ -122,6 +122,12 @@ void client_handle(client_info* client,dict* kv_dict,skip_list* expiry_list,dict
         handle_zcard(client->fd,set_dict,buffer_copy);
         return;
     }
+    
+    if(strcmp(command,"zrange") == 0)
+    {
+        handle_zrange(client->fd,set_dict,buffer_copy);
+        return;
+    }
     //Command is not known
     ret_val = sprintf(reply,VR_REPLY_UNKNOWN_COMMAND,command);
 
@@ -162,7 +168,7 @@ void handle_set(int connfd,dict *kv_dict,skip_list* expiry_list,char* string)
     if(key == NULL)
     {
         //syntax error if key isn't there
-        ret_val = sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val = sprintf(reply,VR_REPLY_WRONG_ARG_SET,"set");
         ret_val = write(connfd, reply, ret_val );
         return;
     }
@@ -173,7 +179,7 @@ void handle_set(int connfd,dict *kv_dict,skip_list* expiry_list,char* string)
     if(value == NULL)
     {
         //syntax error if value isn't there
-        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET, "set");
         ret_val = write(connfd, reply, ret_val );
         return;
     }
@@ -341,7 +347,7 @@ void handle_get(int connfd,dict *kv_dict,char* string)
     if(key == NULL)
     {
         //syntax error if key isn't there
-        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET,"get");
         ret_val = write(connfd, reply, ret_val );
         return;
     }
@@ -358,7 +364,7 @@ void handle_get(int connfd,dict *kv_dict,char* string)
     if(key == NULL)
     {
         //syntax error if key isn't there
-        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET,"get");
         ret_val = write(connfd, reply, ret_val );
         return;
     }
@@ -419,7 +425,7 @@ void handle_getbit(int connfd,dict *kv_dict,char* string)
     if(key == NULL)
     {
         //syntax error if key isn't there
-        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET,"getbit");
         ret_val = write(connfd, reply, ret_val );
         return;
     }
@@ -428,7 +434,7 @@ void handle_getbit(int connfd,dict *kv_dict,char* string)
     if(bit == NULL)
     {
         //syntax error if bit isn't there
-        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET,"getbit");
         ret_val = write(connfd, reply, ret_val );
         return;
     }
@@ -495,7 +501,7 @@ void handle_setbit(int connfd,dict *kv_dict,char* string)
     if(key == NULL)
     {
         //syntax error if key isn't there
-        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET,"setbit");
         ret_val = write(connfd, reply, ret_val );
         return;
     }
@@ -504,7 +510,7 @@ void handle_setbit(int connfd,dict *kv_dict,char* string)
     if(bit_index_str == NULL)
     {
         //syntax error if bit isn't there
-        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET,"setbit");
         ret_val = write(connfd, reply, ret_val );
         return;
     }
@@ -513,7 +519,7 @@ void handle_setbit(int connfd,dict *kv_dict,char* string)
     if(bit == NULL)
     {
         //syntax error if bit isn't there
-        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET,"setbit");
         ret_val = write(connfd, reply, ret_val );
         return;
     }
@@ -593,7 +599,7 @@ void handle_zadd(int connfd,dict *set_dict,char* string)
     if(set_str == NULL)
     {
         //syntax error if key isn't there
-        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET,"zadd");
         ret_val = write(connfd, reply, ret_val );
         return;
     }
@@ -602,7 +608,7 @@ void handle_zadd(int connfd,dict *set_dict,char* string)
     if(score == NULL)
     {
         //syntax error if bit isn't there
-        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET,"zadd");
         ret_val = write(connfd, reply, ret_val );
         return;
     }
@@ -611,7 +617,7 @@ void handle_zadd(int connfd,dict *set_dict,char* string)
     if(member == NULL)
     {
         //syntax error if bit isn't there
-        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET,"zadd");
         ret_val = write(connfd, reply, ret_val );
         return;
     }
@@ -698,7 +704,7 @@ void handle_zcard(int connfd,dict *set_dict,char* string)
     if(set_str == NULL)
     {
         //syntax error if key isn't there
-        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET);
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET,"zcard");
         ret_val = write(connfd, reply, ret_val );
         return;
     }
@@ -726,8 +732,173 @@ void handle_zcard(int connfd,dict *set_dict,char* string)
         ret_val = sprintf(reply,VR_REPLY_BIT,obj_ptr->obj_set->len);
         ret_val = write(connfd, reply, ret_val );
     }
-    //dict_print(set_dict);
+    dict_print(set_dict);
     //printf("Add %lf , %.*s to set %.*s\n",score_val,(int)strlen(member),member,(int)strlen(set_str),set_str);
 }
 
+
+void handle_zrange(int connfd,dict *set_dict,char* string)
+{
+    
+    int ret_val;
+    char reply[VR_MAX_MSG_LEN];
+    char score_reply[VR_MAX_MSG_LEN];
+    char* command,*set_str,*stop,*start,*next;
+    double exp;
+    int ws = 0;
+    vr_object *obj_ptr;
+    int start_val,stop_val;
+    set* set_ptr;
+    int count;
+    int offset1,offset2,i;
+    skip_list_node* node;
+    int len;
+    int trunc;
+    
+    rstrip(string);
+    command = strtok(string," ");
+    str_lower(command);
+    
+    if(strcmp(command,"zrange"))
+    {
+        perror("Fatal error, command to zrange is not zrange");
+    }
+    
+    //Parse Key
+    set_str = strtok(NULL," ");
+    if(set_str == NULL)
+    {
+        //syntax error if key isn't there
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET,"zrange");
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    start = strtok(NULL," ");
+    if(start == NULL)
+    {
+        //syntax error if key isn't there
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET,"zrange");
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    stop = strtok(NULL," ");
+    if(stop == NULL)
+    {
+        //syntax error if key isn't there
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET,"zrange");
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    next = strtok(NULL," ");
+    //Extra tokens
+    if(next != NULL)
+    {
+        str_lower(next);
+        if( strcmp (next,"withscores") == 0)
+        {
+            ws = 1;
+        }
+        else
+        {
+            ret_val = sprintf(reply,VR_REPLY_SYNTAX_ERROR);
+            ret_val = write(connfd, reply, ret_val );
+            return;
+        }
+    }
+    
+    if(isint_neg(start))
+        start_val = atoi(start);
+    else
+    {
+        ret_val = sprintf(reply,VR_REPLY_NOT_INT);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+
+    if(isint_neg(stop))
+        stop_val = atoi(stop);
+    else
+    {
+        ret_val = sprintf(reply,VR_REPLY_NOT_INT);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }   
+    
+    obj_ptr = dict_get(set_dict,set_str,strlen(set_str),&exp);
+    
+    if(obj_ptr == NULL )
+    {
+        ret_val = sprintf(reply,VR_REPLY_ARRAY_SIZE,0);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    else
+    {
+        set_ptr = obj_ptr->obj_set;
+        offset1 = (start_val < 0) ? (set_ptr->len + start_val) : start_val;
+        offset2 = (stop_val < 0) ? (set_ptr->len + stop_val) : stop_val;
+    }
+    //printf("of1 = %d , of2 = %d\n",offset1,offset2);
+    
+    if(offset1 > offset2)
+    {
+        ret_val = sprintf(reply,VR_REPLY_ARRAY_SIZE,0);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+
+    if(offset1 >= set_ptr->len)
+    {
+        ret_val = sprintf(reply,VR_REPLY_ARRAY_SIZE,0);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+        
+    if(offset2 >= set_ptr->len)
+        offset2 = set_ptr->len - 1;  
+
+    count = offset2 - offset1 + 1;
+    if(count < 0)
+        count = 0;
+        
+    ret_val = sprintf(reply,VR_REPLY_ARRAY_SIZE,count);
+    ret_val = write(connfd, reply, ret_val );
+    
+    node = set_ptr->set_list.header;
+    node = node->next[0];
+    for(i=0;i<offset1;i++)
+    {
+        if(node == NULL)
+            perror("Fatal : zrange\n");
+        node = node->next[0];
+    }
+    
+    for(i=0;i<count;i++)
+    {
+        if(node == NULL)
+            perror("Fatal : zrange\n");
+        ret_val = sprintf(reply,VR_REPLY_STRING,node->klen,node->klen,node->key);
+        ret_val = write(connfd, reply, ret_val );
+        
+        if(ws)
+        {
+            trunc = (int)node->score;
+            if( trunc == node->score)
+                len = sprintf(score_reply,"%d",(int)node->score);
+            else
+                len = sprintf(score_reply,"%lf",node->score);
+                
+            ret_val = sprintf(reply,VR_REPLY_STRING,len,len,score_reply);
+            ret_val = write(connfd, reply, ret_val );
+            
+        }
+        node = node->next[0];
+    }
+
+    //dict_print(set_dict);
+    //printf("Add %lf , %.*s to set %.*s\n",score_val,(int)strlen(member),member,(int)strlen(set_str),set_str);
+}
 
