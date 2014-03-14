@@ -170,7 +170,6 @@ def test_zcard():
     server.send('zcard setb' + nl)
     reply = server.recv(100).strip()
     
-    print reply
     if reply == ':4':
         pass
     else :
@@ -182,4 +181,56 @@ def test_zcard():
         pass
     else :
         assert False
+        
+def test_zrange():
+    server.send("zadd setd 1 a" + nl)
+    reply = server.recv(100)
+    server.send("zadd setd 2 b" + nl)
+    reply = server.recv(100)
+    server.send("zadd setd 3 c" + nl)
+    reply = server.recv(100)
+    server.send("zadd setd 4 d" + nl)
+    reply = server.recv(100)
+    server.send("zadd setd 5 e" + nl)
+    reply = server.recv(100)    
     
+    server.send('zrange setd 1 -2 withscores' + nl)
+    #time.sleep(.01)
+    reply = server.recv(1000)
+    parts = reply.split()
+    
+    #print reply
+    #for r in reply:
+    #    print r,ord(r)
+    assert parts[0] == '*6'
+    assert parts[2] == 'b'
+    assert parts[4] == '2'
+    assert parts[6] == 'c'
+    assert parts[8] == '3'
+    assert parts[10] == 'd'
+    assert parts[12] == '4'
+    
+def test_zcount():
+    server.send("zadd sete 1 aewf" + nl)
+    reply = server.recv(100)
+    server.send("zadd sete 2 bwfe" + nl)
+    reply = server.recv(100)
+    server.send("zadd sete 2 wcwe" + nl)
+    reply = server.recv(100)
+    server.send("zadd sete 4 d2wef" + nl)
+    reply = server.recv(100)
+    server.send("zadd sete 100 qwfe" + nl)
+    reply = server.recv(100)    
+    server.send("zadd sete 4 wewe" + nl)
+    reply = server.recv(100)  
+    server.send("zadd sete 7 w552e" + nl)
+    reply = server.recv(100)      
+    
+    server.send('zcount sete 2 7' + nl)
+    #time.sleep(.01)
+    reply = server.recv(1000)
+    reply = reply.split()[0]
+
+    print reply
+    assert reply == ':5'
+        

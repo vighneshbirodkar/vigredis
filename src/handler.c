@@ -128,6 +128,11 @@ void client_handle(client_info* client,dict* kv_dict,skip_list* expiry_list,dict
         handle_zrange(client->fd,set_dict,buffer_copy);
         return;
     }
+    if(strcmp(command,"zcount")==0)
+    {
+        handle_zcount(client->fd,set_dict,buffer_copy);
+        return;
+    }
     //Command is not known
     ret_val = sprintf(reply,VR_REPLY_UNKNOWN_COMMAND,command);
 
@@ -732,7 +737,7 @@ void handle_zcard(int connfd,dict *set_dict,char* string)
         ret_val = sprintf(reply,VR_REPLY_BIT,obj_ptr->obj_set->len);
         ret_val = write(connfd, reply, ret_val );
     }
-    dict_print(set_dict);
+    //dict_print(set_dict);
     //printf("Add %lf , %.*s to set %.*s\n",score_val,(int)strlen(member),member,(int)strlen(set_str),set_str);
 }
 
@@ -754,6 +759,7 @@ void handle_zrange(int connfd,dict *set_dict,char* string)
     skip_list_node* node;
     int len;
     int trunc;
+    int str_offset = 0;
     
     rstrip(string);
     command = strtok(string," ");
@@ -841,7 +847,7 @@ void handle_zrange(int connfd,dict *set_dict,char* string)
         offset1 = (start_val < 0) ? (set_ptr->len + start_val) : start_val;
         offset2 = (stop_val < 0) ? (set_ptr->len + stop_val) : stop_val;
     }
-    //printf("of1 = %d , of2 = %d\n",offset1,offset2);
+    
     
     if(offset1 > offset2)
     {
@@ -864,11 +870,18 @@ void handle_zrange(int connfd,dict *set_dict,char* string)
     if(count < 0)
         count = 0;
         
-    ret_val = sprintf(reply,VR_REPLY_ARRAY_SIZE,count);
-    ret_val = write(connfd, reply, ret_val );
+    if(ws)
+        ret_val = sprintf(reply + str_offset,VR_REPLY_ARRAY_SIZE,count*2);
+    else
+        ret_val = sprintf(reply + str_offset,VR_REPLY_ARRAY_SIZE,count);
+    str_offset += ret_val;
+    //ret_val = write(connfd, reply, ret_val );
     
     node = set_ptr->set_list.header;
     node = node->next[0];
+    
+    //printf("of1 = %d , of2 = %d , count = %d\n",offset1,offset2,count);
+    
     for(i=0;i<offset1;i++)
     {
         if(node == NULL)
@@ -880,8 +893,10 @@ void handle_zrange(int connfd,dict *set_dict,char* string)
     {
         if(node == NULL)
             perror("Fatal : zrange\n");
-        ret_val = sprintf(reply,VR_REPLY_STRING,node->klen,node->klen,node->key);
-        ret_val = write(connfd, reply, ret_val );
+        //printf(" i = %d\n",i);
+        ret_val = sprintf(reply + str_offset,VR_REPLY_STRING,node->klen,node->klen,node->key);
+        str_offset += ret_val;
+        //ret_val = write(connfd, reply, ret_val );
         
         if(ws)
         {
@@ -891,14 +906,116 @@ void handle_zrange(int connfd,dict *set_dict,char* string)
             else
                 len = sprintf(score_reply,"%lf",node->score);
                 
-            ret_val = sprintf(reply,VR_REPLY_STRING,len,len,score_reply);
-            ret_val = write(connfd, reply, ret_val );
+            ret_val = sprintf(reply + str_offset,VR_REPLY_STRING,len,len,score_reply);
+            str_offset += ret_val;
+            //ret_val = write(connfd, reply, ret_val );
             
         }
         node = node->next[0];
     }
 
+    ret_val = write(connfd, reply, str_offset );
     //dict_print(set_dict);
     //printf("Add %lf , %.*s to set %.*s\n",score_val,(int)strlen(member),member,(int)strlen(set_str),set_str);
+}
+
+
+void handle_zcount(int connfd,dict *set_dict,char* string)
+{
+    
+    int ret_val;
+    char reply[VR_MAX_MSG_LEN];
+    char* command,*set_str,*min,*max,*next;
+    double max_val,min_val,exp;
+    vr_object *obj_ptr;
+    skip_list_node *start;
+    int count = 0;
+    
+    
+    rstrip(string);
+    command = strtok(string," ");
+    str_lower(command);
+    
+    if(strcmp(command,"zcount"))
+    {
+        perror("Fatal error, command to zcount is not zcount");
+    }
+    
+    //Parse Key
+    set_str = strtok(NULL," ");
+    if(set_str == NULL)
+    {
+        //syntax error if key isn't there
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET,"zcount");
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    min = strtok(NULL," ");
+    if(min == NULL)
+    {
+        //syntax error if bit isn't there
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET,"zcount");
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    max = strtok(NULL," ");
+    if(max == NULL)
+    {
+        //syntax error if bit isn't there
+        ret_val =sprintf(reply,VR_REPLY_WRONG_ARG_SET,"zcount");
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    
+    next = strtok(NULL," ");
+    //Extra tokens
+    if(next != NULL)
+    {
+        ret_val = sprintf(reply,VR_REPLY_SYNTAX_ERROR);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+     
+    if(isdouble(max))
+        max_val = atof(max);
+    else
+    {
+        ret_val = sprintf(reply,VR_REPLY_NOT_FLOAT);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    if(isdouble(min))
+        min_val = atof(min);
+    else
+    {
+        ret_val = sprintf(reply,VR_REPLY_NOT_FLOAT);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    
+    obj_ptr = dict_get(set_dict,set_str,strlen(set_str),&exp);
+    count = 0;
+    if(obj_ptr == NULL)
+    {
+        ret_val = sprintf(reply,VR_REPLY_BIT,count);
+        ret_val = write(connfd, reply, ret_val );
+        return;
+    }
+    start = skip_list_point(&obj_ptr->obj_set->set_list,min_val);
+    
+    while( (start != NULL) && (start->score <= max_val))
+    {
+        count ++;
+        start = start->next[0];
+    }
+
+    ret_val = sprintf(reply,VR_REPLY_BIT,count);
+    ret_val = write(connfd, reply, ret_val );
+    return;
+    
 }
 

@@ -29,5 +29,5 @@ double skip_list_first(skip_list* sl);
 int skip_list_empty(skip_list* sl);
 skip_list_node* skip_list_pop(skip_list *sl);
 void skip_list_clear(skip_list* sl);
-
+skip_list_node* skip_list_point(skip_list* sl,double score);
 #endif

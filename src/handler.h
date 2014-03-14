@@ -31,4 +31,5 @@ void handle_setbit(int connfd,dict *kv_dict,char* string);
 void handle_zadd(int connfd,dict *set_dict,char* string);
 void handle_zcard(int connfd,dict *set_dict,char* string);
 void handle_zrange(int connfd,dict *set_dict,char* string);
+void handle_zcount(int connfd,dict *set_dict,char* string);
 #endif
