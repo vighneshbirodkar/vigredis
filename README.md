@@ -21,7 +21,9 @@ Usage
 ./vigredis.out -f filename -p port
 ```
 `filename` - The file to use for loading and storing database.
+
 `port` - The port to listen on for incoming connections.
+
 Defualt port is `15000` and defualt dump file is `~/vr.dump`.
 
 Unit Tests
