@@ -100,8 +100,15 @@ int main(int argc,char** argv)
         }
     }
     
-    printf("Using Port : %d\n",port);
-    printf("Using File : %s\n",filename);
+    printf(VR_GREETING);
+    printf("\n");
+    printf(VR_VERSION);
+    printf(VR_SOURCE_URL);
+    printf(VR_WARNING);
+    printf("\n");
+    printf(VR_DETAILS,getpid(),port,filename);
+    printf("\n");
+
     
     load_state(filename,&kv_dict,&set_dict);
     
@@ -189,7 +196,8 @@ int main(int argc,char** argv)
             dict_clear(&set_dict);
             skip_list_clear(&expiry_list);
             dict_clear(&kv_dict);
-            printf("\n----- Exiting, Bye ! -----\n");
+            printf("\n");
+            printf(VR_BYE);
             exit(0);
         }
     }
