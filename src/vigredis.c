@@ -154,7 +154,7 @@ int main(int argc,char** argv)
                             VR_END_CHAR2) 
                             )
                         {
-                            client_handle(current_client,&kv_dict,&expiry_list,&set_dict);
+                            client_handle(current_client,&kv_dict,&expiry_list,&set_dict,filename);
                             current_client->index = 0;
                             bzero(current_client->buffer,VR_BUFFER_LEN);
                         }

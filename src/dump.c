@@ -83,7 +83,6 @@ void load_state(char *fname,dict* kv_dict,dict* set_dict)
     
     if(file == NULL)
     {
-        printf("Error : Can't open %s to load data\n",fname);
         return;
     }
     if(kv_dict->type != VR_TYPE_STRING)
@@ -101,7 +100,7 @@ void load_state(char *fname,dict* kv_dict,dict* set_dict)
         {
             sscanf(line,"%s %lf %s",set_name,&score,member);
             obj_ptr = dict_get(set_dict,set_name,strlen(set_name),&exp);
-            printf("%s %lf %s\n",set_name,score,member);
+
             if( obj_ptr == NULL )
             {
                 //needs to be malloced

@@ -12,6 +12,7 @@
 #include "string_def.h"
 #include "skip_list.h"
 #include "set.h"
+#include "dump.h"
  
 
 /*
@@ -62,7 +63,7 @@ client_info* client_list_delete(client_list* l,client_info* node)
  * Handles data on connfd
  * Will read and parse the string, and reply appropriately
  */
-void client_handle(client_info* client,dict* kv_dict,skip_list* expiry_list,dict* set_dict)
+void client_handle(client_info* client,dict* kv_dict,skip_list* expiry_list,dict* set_dict, char* filename)
 {
     char *buffer;
     char buffer_copy[VR_MAX_MSG_LEN];
@@ -133,9 +134,16 @@ void client_handle(client_info* client,dict* kv_dict,skip_list* expiry_list,dict
         handle_zcount(client->fd,set_dict,buffer_copy);
         return;
     }
+    if(strcmp(command,"save")==0)
+    {
+        printf("Saving state to : %s\n",filename);
+        save_state(filename,kv_dict,set_dict);
+        ret_val = sprintf(reply,VR_REPLY_OK);
+        ret_val = write(client->fd, reply, ret_val);
+        return;
+    }
     //Command is not known
     ret_val = sprintf(reply,VR_REPLY_UNKNOWN_COMMAND,command);
-
     ret_val = write(client->fd, reply, ret_val);
     if(ret_val < 0)
     {
