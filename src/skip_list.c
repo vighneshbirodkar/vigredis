@@ -101,7 +101,7 @@ skip_list_node* skip_list_point(skip_list* sl,double score)
 
 /*
  *
- * Deletes the element with the epcified score and key
+ * Deletes the element with the spcified score and key
  */
  
 void skip_list_delete_with_key(skip_list *sl,double score,char* key,int klen)

@@ -382,6 +382,7 @@ void handle_get(int connfd,dict *kv_dict,char* string)
         return;
     }
     
+    //check for key, if not present, return VR_REPLY_NOT_FOUND
     obj = dict_get(kv_dict,key,strlen(key),&expiry);
     str = &obj->string;
     t = get_time_ms();
@@ -470,6 +471,7 @@ void handle_getbit(int connfd,dict *kv_dict,char* string)
         return;
     }
     
+    //check for key, if not return 0
     bit_val = dict_get_bit(kv_dict,key,strlen(key),bit_index,&expiry);
     t = get_time_ms();
     
@@ -567,6 +569,7 @@ void handle_setbit(int connfd,dict *kv_dict,char* string)
     }
     
     expiry = -1;
+    //set the bit, the call handles the key not present case
     bit_val = dict_set_bit(kv_dict,key,strlen(key),bit_index,bit_val,&expiry);
     t = get_time_ms();
     
@@ -654,6 +657,7 @@ void handle_zadd(int connfd,dict *set_dict,char* string)
         return;
     }
     
+    //check if set exists, if not, create a new one and add member
     obj_ptr = dict_get(set_dict,set_str,strlen(set_str),&exp);
     if( obj_ptr == NULL )
     {
@@ -843,6 +847,8 @@ void handle_zrange(int connfd,dict *set_dict,char* string)
     
     obj_ptr = dict_get(set_dict,set_str,strlen(set_str),&exp);
     
+    //get indices and convert them to the 0 biased offsets
+    
     if(obj_ptr == NULL )
     {
         ret_val = sprintf(reply,VR_REPLY_ARRAY_SIZE,0);
@@ -855,6 +861,7 @@ void handle_zrange(int connfd,dict *set_dict,char* string)
         offset1 = (start_val < 0) ? (set_ptr->len + start_val) : start_val;
         offset2 = (stop_val < 0) ? (set_ptr->len + stop_val) : stop_val;
     }
+    
     
     
     if(offset1 > offset2)
@@ -890,6 +897,7 @@ void handle_zrange(int connfd,dict *set_dict,char* string)
     
     //printf("of1 = %d , of2 = %d , count = %d\n",offset1,offset2,count);
     
+    //loop till required
     for(i=0;i<offset1;i++)
     {
         if(node == NULL)
@@ -1013,6 +1021,8 @@ void handle_zcount(int connfd,dict *set_dict,char* string)
         ret_val = write(connfd, reply, ret_val );
         return;
     }
+    
+    //keep looping and count
     start = skip_list_point(&obj_ptr->obj_set->set_list,min_val);
     
     while( (start != NULL) && (start->score <= max_val))

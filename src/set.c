@@ -1,3 +1,8 @@
+/*
+ * an ordered set implementation
+ * each element is stores in the sets dictionary as well as its skip_list
+ */
+
 #include"set.h"
 #include "dict.h"
 #include"skip_list.h"
@@ -5,12 +10,23 @@
 #include <stdio.h>
 #include "util.h"
 
+/*
+ * initialization
+ */
 void set_init(set *s)
 {
     dict_init(&s->set_dict,VR_TYPE_DOUBLE);
     skip_list_init(&s->set_list);
     s->len = 0;
 }
+
+/*
+ * adds `key` with `score` to `s`
+ * if `key` existed its score is updated
+ * returns
+ * VR_ERR_OK if member was absent
+ * VR_ERR_EXIST if member was present
+ */
 
 int set_add(set *s,char* key,int klen,double score)
 {

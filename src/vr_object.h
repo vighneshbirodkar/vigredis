@@ -1,6 +1,6 @@
 /*
  * A generic object
- * It can hold either an int,a string or a pointer
+ * It can hold either an int,a string or a pointer to set
  */
  
  
@@ -12,6 +12,7 @@
  
 struct set;
 
+//the object type used in dict
 typedef union vr_object
 {
     double value;
