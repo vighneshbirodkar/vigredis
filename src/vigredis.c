@@ -10,9 +10,10 @@
 #include<errno.h>
 #include <signal.h>
 #include <stddef.h>
+#include "util.h"
+#include "dump.h"
 
 
-#define SIZE 1000
 
 int main(int argc,char** argv)
 {
@@ -40,6 +41,9 @@ int main(int argc,char** argv)
     sigset_t sig_mask, pending_mask;
     client_list clients;
     client_info* current_client;
+    char* filename = VR_FILENAME;
+    int port = VR_PORT;
+    int opt;
     
     
     // Initializations
@@ -74,6 +78,32 @@ int main(int argc,char** argv)
     //For select call
     FD_SET(listenfd,&read_fds);
     maxfd = listenfd;
+    
+    while ((opt = getopt(argc, argv, "f:p:")) != -1) 
+    {
+        switch (opt) 
+        {
+            case 'f':
+                filename = optarg;
+                break;
+            case 'p':
+                if(isint(optarg))
+                {
+                    port = atoi(optarg);
+                }
+                else
+                {
+                    printf("Error : Invalid Port Specified\n");
+                }
+                break;
+              
+        }
+    }
+    
+    printf("Using Port : %d\n",port);
+    printf("Using File : %s\n",filename);
+    
+    load_state(filename,&kv_dict,&set_dict);
     
     while(1)
     {
@@ -155,6 +185,7 @@ int main(int argc,char** argv)
             while(current_client)
                 current_client = client_list_delete(&clients,current_client);
                 
+            save_state(filename,&kv_dict,&set_dict);
             dict_clear(&set_dict);
             skip_list_clear(&expiry_list);
             dict_clear(&kv_dict);
