@@ -136,4 +136,7 @@ void load_state(char *fname,dict* kv_dict,dict* set_dict)
     
     if(set_dict->type != VR_TYPE_SET)
         perror("load_sate: set dict incorrect\n");
+    
+    fclose(file);
+    free(line);
 }
