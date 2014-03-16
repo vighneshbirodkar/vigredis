@@ -2,6 +2,7 @@ vigredis
 ========
 
 A sub set of redis implemented for http://exotel.in/about/exotel-tech-challenge-1/
+
 A short article about **VigRedis** ca be found here - http://wp.me/p2D1Yw-5e.
 
 Dependencies
